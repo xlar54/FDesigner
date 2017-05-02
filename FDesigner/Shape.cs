@@ -17,5 +17,6 @@ namespace FDesigner
 
         public int z;
         public Bitmap bitmap;
+
     }
 }
