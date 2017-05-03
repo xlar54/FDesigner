@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,12 +100,13 @@ namespace FDesigner
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            Point m = e.Location;
+            
             // User starts to draw a shape
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape != ShapeType.NONE)
             {
                 drawShapesQueue();
-
-                Point m = e.Location;
+                
                 tempShape.x1 = m.X;
                 tempShape.y1 = m.Y;
                 drawingShape = true;
@@ -112,31 +114,25 @@ namespace FDesigner
                 return;
             }
 
-            // User moves a shape
+            // User moves a shape (or clicks canvas)
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
             {
-                Point m = e.Location;
-
-                drawShapesQueue();
                 shapeMgr.DeselectAll();
 
-                
-                for(int x=shapeMgr.shapes.Count-1; x > -1; x--)
+                int shapeAtPoint = shapeMgr.ShapeIndexAtPoint(m);
+
+                if (shapeAtPoint > -1)
                 {
-                    Shape s = shapeMgr.shapes[x];
+                    shapeMgr.SelectedIndex = shapeAtPoint;
+                    drawShapesQueue();
 
-                    // Select the topmost selected shape
-                    if (m.X >= s.x1 && m.X <= s.x2 && m.Y >= s.y1 && m.Y <= s.y2)
-                    {
-                        shapeMgr.SelectedIndex = x;
-                        drawShapesQueue();
-
-                        movingShape = true;
-                        mouseOffset = new Point(m.X - s.x1, m.Y - s.y1);
-                        tempCanvas = (Bitmap)mainCanvas.Clone();
-                        break;
-                    }
+                    movingShape = true;
+                    mouseOffset = new Point(m.X - shapeMgr.SelectedShape.x1, m.Y - shapeMgr.SelectedShape.y1);
+                    tempCanvas = (Bitmap)mainCanvas.Clone();
                 }
+
+
+                drawShapesQueue();
             }
 
         }
@@ -354,5 +350,16 @@ namespace FDesigner
             }
         }
 
+        private void printToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            PrintDocument printDocument1 = new PrintDocument();
+            printDocument1.PrintPage += new PrintPageEventHandler(printDocument1_PrintPage);
+            printDocument1.Print();
+        }
+
+        private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
+        {
+            e.Graphics.DrawImage(pictureBox1.Image, 0, 0);
+        }
     }
 }

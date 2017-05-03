@@ -81,6 +81,20 @@ namespace FDesigner
             }
         }
 
+        public int ShapeIndexAtPoint(Point p)
+        {
+            for (int x = shapes.Count - 1; x > -1; x--)
+            {
+                Shape s = shapes[x];
+
+                // Select the topmost selected shape
+                if (p.X >= s.x1 && p.X <= s.x2 && p.Y >= s.y1 && p.Y <= s.y2)
+                    return x;
+            }
+
+            return -1;
+        }
+
         
     }
 }
