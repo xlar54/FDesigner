@@ -18,7 +18,9 @@ namespace FDesigner
         {
             NONE,
             BOX,
-            DIAMOND
+            DIAMOND,
+            CIRCLE,
+            TRIANGLE,
         }
 
         public ShapeType selectedShape;
@@ -77,6 +79,19 @@ namespace FDesigner
         {
             selectedShape = ShapeType.DIAMOND;
 
+            drawShapesQueue();
+        }
+
+        private void btnCircle_Click(object sender, EventArgs e)
+        {
+            selectedShape = ShapeType.CIRCLE;
+
+            drawShapesQueue();
+        }
+
+        private void btnTriangle_Click(object sender, EventArgs e)
+        {
+            selectedShape = ShapeType.TRIANGLE;
             drawShapesQueue();
         }
 
@@ -170,14 +185,32 @@ namespace FDesigner
                                 gb.DrawRectangle(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
                                 break;
                             case ShapeType.DIAMOND:
-                                Point[] points = new Point[4];
-                                points[0] = new Point(0, tempShape.bitmap.Height / 2);
-                                points[1] = new Point(tempShape.bitmap.Width / 2, 0);
-                                points[2] = new Point(tempShape.bitmap.Width - 1, tempShape.bitmap.Height / 2);
-                                points[3] = new Point(tempShape.bitmap.Width / 2, tempShape.bitmap.Height - 1);
-                                gb.FillPolygon(fillBrush, points);
-                                gb.DrawPolygon(pen, points);
+                                {
+                                    Point[] points = new Point[4];
+                                    points[0] = new Point(0, tempShape.bitmap.Height / 2);
+                                    points[1] = new Point(tempShape.bitmap.Width / 2, 0);
+                                    points[2] = new Point(tempShape.bitmap.Width - 1, tempShape.bitmap.Height / 2);
+                                    points[3] = new Point(tempShape.bitmap.Width / 2, tempShape.bitmap.Height - 1);
+                                    gb.FillPolygon(fillBrush, points);
+                                    gb.DrawPolygon(pen, points);
+                                    break;
+                                }
+
+                            case ShapeType.CIRCLE:
+                                gb.FillEllipse(fillBrush, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
+                                gb.DrawEllipse(pen, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
                                 break;
+                            case ShapeType.TRIANGLE:
+                                {
+                                    Point[] points = new Point[3];
+                                    points[0] = new Point(0, tempShape.bitmap.Height-1);
+                                    points[1] = new Point(tempShape.bitmap.Width / 2, 0);
+                                    points[2] = new Point(tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
+                                    gb.FillPolygon(fillBrush, points);
+                                    gb.DrawPolygon(pen, points);
+                                    break;
+                                }
+                                
                             default:
                                 throw new Exception("you done goofed");
                         }
@@ -331,5 +364,14 @@ namespace FDesigner
 
         }
 
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (shapes.Count > 0)
+            {
+                shapes.RemoveAt(shapes.Count - 1);
+                drawShapesQueue();
+            }
+            
+        }
     }
 }
