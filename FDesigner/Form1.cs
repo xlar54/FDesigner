@@ -23,14 +23,15 @@ namespace FDesigner
             TRIANGLE,
         }
 
-        public ShapeType selectedShape;
-        List<Shape> shapes = new List<Shape>();
-        Bitmap canvas = new Bitmap(1280, 960);
+        Bitmap mainCanvas = new Bitmap(1280, 960);
         Bitmap tempCanvas;
+
+        ShapesManager shapeMgr = new ShapesManager();
+
+        public ShapeType selectedShape;
         public bool drawingShape = false;
         public bool movingShape = false;
-        public Point selectedShapeOffset;
-        public int selectedShapeIndex = -1;
+        public Point mouseOffset;
         public Shape tempShape = new Shape();
 
         int maxHeight;
@@ -39,15 +40,14 @@ namespace FDesigner
         public Form1()
         {
             InitializeComponent();
-            
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            clearCanvas();
+            clearCanvas(mainCanvas);
         }
 
-        private void clearCanvas()
+        private void clearCanvas(Image canvas)
         {
             using (Graphics gb = Graphics.FromImage(canvas))
             {
@@ -71,32 +71,29 @@ namespace FDesigner
         private void btnSquare_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.BOX;
-            foreach (Shape s in shapes)
-                s.selected = false;
+
+            shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
         private void btnDiamond_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.DIAMOND;
-            foreach (Shape s in shapes)
-                s.selected = false;
+            shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
         private void btnCircle_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.CIRCLE;
-            foreach (Shape s in shapes)
-                s.selected = false;
+            shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
         private void btnTriangle_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.TRIANGLE;
-            foreach (Shape s in shapes)
-                s.selected = false;
+            shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
@@ -111,7 +108,7 @@ namespace FDesigner
                 tempShape.x1 = m.X;
                 tempShape.y1 = m.Y;
                 drawingShape = true;
-                tempCanvas = (Bitmap)canvas.Clone();
+                tempCanvas = (Bitmap)mainCanvas.Clone();
                 return;
             }
 
@@ -121,30 +118,22 @@ namespace FDesigner
                 Point m = e.Location;
 
                 drawShapesQueue();
+                shapeMgr.DeselectAll();
 
-                foreach (Shape s in shapes)
-                    s.selected = false;
-
-                for(int x=shapes.Count-1; x > -1; x--)
+                
+                for(int x=shapeMgr.shapes.Count-1; x > -1; x--)
                 {
-                    Shape s = shapes[x];
+                    Shape s = shapeMgr.shapes[x];
 
+                    // Select the topmost selected shape
                     if (m.X >= s.x1 && m.X <= s.x2 && m.Y >= s.y1 && m.Y <= s.y2)
                     {
-                        Pen p = new Pen(Color.Green);
-                        p.DashPattern = new float[] { 9.0F, 6.0F, 4.0F, 3.0F };
+                        shapeMgr.SelectedIndex = x;
+                        drawShapesQueue();
 
-                        using (Graphics g = Graphics.FromImage(canvas))
-                        {
-                            g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
-                        }
-
-                        pictureBox1.Image = canvas;
-                        shapes[x].selected = true;
                         movingShape = true;
-                        selectedShapeIndex = x;
-                        selectedShapeOffset = new Point(m.X - s.x1, m.Y - s.y1);
-                        tempCanvas = (Bitmap)canvas.Clone();
+                        mouseOffset = new Point(m.X - s.x1, m.Y - s.y1);
+                        tempCanvas = (Bitmap)mainCanvas.Clone();
                         break;
                     }
                 }
@@ -188,9 +177,12 @@ namespace FDesigner
                         switch (selectedShape)
                         {
                             case ShapeType.BOX:
-                                gb.FillRectangle(fillBrush, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
-                                gb.DrawRectangle(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
-                                break;
+                                {
+                                    gb.FillRectangle(fillBrush, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                    gb.DrawRectangle(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                    break;
+                                }
+                                
                             case ShapeType.DIAMOND:
                                 {
                                     Point[] points = new Point[4];
@@ -204,9 +196,12 @@ namespace FDesigner
                                 }
 
                             case ShapeType.CIRCLE:
-                                gb.FillEllipse(fillBrush, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
-                                gb.DrawEllipse(pen, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
-                                break;
+                                {
+                                    gb.FillEllipse(fillBrush, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
+                                    gb.DrawEllipse(pen, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
+                                    break;
+                                }
+                                
                             case ShapeType.TRIANGLE:
                                 {
                                     Point[] points = new Point[3];
@@ -226,23 +221,23 @@ namespace FDesigner
                     tempShape.bitmap.MakeTransparent(Color.White);
 
                     // Get underlying region, draw it, then draw the shape
-                    ReplaceBitmapRegion(tempCanvas, canvas, new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight));
-                    tempShape.Draw(canvas);
+                    ReplaceBitmapRegion(tempCanvas, mainCanvas, new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight));
+                    tempShape.Draw(mainCanvas);
 
-                    pictureBox1.Image = canvas;
+                    pictureBox1.Image = mainCanvas;
                 }
             }
 
             if (e.Button == MouseButtons.Left && movingShape)
             {
                 // Get underlying region, draw it, then draw the shape
-                ReplaceBitmapRegion(tempCanvas, canvas, shapes[selectedShapeIndex].rect);
+                ReplaceBitmapRegion(tempCanvas, mainCanvas, shapeMgr.SelectedShape.rect);
 
-                shapes[selectedShapeIndex].x1 = m.X - selectedShapeOffset.X;
-                shapes[selectedShapeIndex].y1 = m.Y - selectedShapeOffset.Y;
-                shapes[selectedShapeIndex].Draw(canvas);
+                shapeMgr.SelectedShape.x1 = m.X - mouseOffset.X;
+                shapeMgr.SelectedShape.y1 = m.Y - mouseOffset.Y;
+                shapeMgr.SelectedShape.Draw(mainCanvas);
 
-                pictureBox1.Image = canvas;
+                pictureBox1.Image = mainCanvas;
             }
         }
 
@@ -261,7 +256,7 @@ namespace FDesigner
                 newShape.y1 = tempShape.y1;
                 newShape.bitmap = (Bitmap)tempShape.bitmap.Clone();
                 newShape.selected = true;
-                shapes.Add(newShape);
+                shapeMgr.shapes.Add(newShape);
 
                 drawShapesQueue();
             }
@@ -269,43 +264,22 @@ namespace FDesigner
             if (movingShape)
             {
                 movingShape = false;
-
-                // Quick swap so that the last moved shape is highest z-order
-                shapes.Add(shapes[selectedShapeIndex]);
-                shapes.RemoveAt(selectedShapeIndex);
-
+                shapeMgr.MoveToBottom(shapeMgr.SelectedIndex);
                 drawShapesQueue();
-                
             }
             
         }
 
         private void drawShapesQueue()
         {
-            clearCanvas();
-            Pen p = new Pen(Color.Green);
-            p.DashPattern = new float[] { 9.0F, 2.0F, 1.0F, 3.0F };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                foreach (Shape s in shapes)
-                {
-                    g.DrawImage(s.bitmap, new Point(s.x1, s.y1));
-
-                    if (s.selected)
-                    {
-                        g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
-                    }
-                }
-                    
-            }
-
-            pictureBox1.Image = canvas;
+            clearCanvas(mainCanvas);
+            shapeMgr.DrawAll(mainCanvas);
+            pictureBox1.Image = mainCanvas;
         }
 
         private bool checkForOverlap(Shape shape)
         {
-            foreach (Shape s in shapes)
+           /* foreach (Shape s in shapes)
             {
                 if (shape.x1 >= s.x1 && shape.x1 <= s.x1 + s.bitmap.Width)
                 {
@@ -317,7 +291,7 @@ namespace FDesigner
                     return true;
                 }
 
-            }
+            }*/
 
             return false;
         }
@@ -355,9 +329,9 @@ namespace FDesigner
 
         private void undoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (shapes.Count > 0)
+            if (shapeMgr.shapes.Count > 0)
             {
-                shapes.RemoveAt(shapes.Count - 1);
+                shapeMgr.shapes.RemoveAt(shapeMgr.shapes.Count - 1);
                 drawShapesQueue();
             }
             
