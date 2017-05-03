@@ -18,5 +18,7 @@ namespace FDesigner
         public int z;
         public Bitmap bitmap;
 
+        public bool selected = false;
+
     }
 }

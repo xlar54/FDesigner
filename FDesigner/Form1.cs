@@ -26,6 +26,9 @@ namespace FDesigner
         Bitmap canvas = new Bitmap(1280, 960);
         Bitmap tempCanvas;
         public bool drawingShape = false;
+        public bool movingShape = false;
+        public Point selectedShapeOffset;
+        public int selectedShapeIndex = -1;
         public Shape tempShape = new Shape();
 
         int maxHeight;
@@ -90,19 +93,54 @@ namespace FDesigner
                 tempCanvas = (Bitmap)canvas.Clone();
                 return;
             }
+
+            if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
+            {
+                Point m = e.Location;
+
+                drawShapesQueue();
+
+                foreach (Shape s in shapes)
+                    s.selected = false;
+
+                for(int x=shapes.Count-1; x > -1; x--)
+                {
+                    Shape s = shapes[x];
+
+                    if (m.X >= s.x1 && m.X <= s.x2 && m.Y >= s.y1 && m.Y <= s.y2)
+                    {
+                        Pen p = new Pen(Color.Green);
+                        p.DashPattern = new float[] { 9.0F, 6.0F, 4.0F, 3.0F };
+
+                        using (Graphics g = Graphics.FromImage(canvas))
+                        {
+                            g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
+                        }
+
+                        pictureBox1.Image = canvas;
+                        shapes[x].selected = true;
+                        movingShape = true;
+                        selectedShapeIndex = x;
+                        selectedShapeOffset = new Point(m.X - s.x1, m.Y - s.y1);
+                        tempCanvas = (Bitmap)canvas.Clone();
+                        break;
+                    }
+                }
+            }
+
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            label1.Text = "X=" + e.Location.X.ToString() + ", Y=" + e.Location.Y.ToString();
+            Point m = e.Location;
+            SolidBrush whiteBrush = new SolidBrush(Color.White);
+            SolidBrush fillBrush = new SolidBrush(Color.WhiteSmoke);
+            Pen pen = new Pen(Color.Black, 1);
+
+            label1.Text = "X=" + m.X.ToString() + ", Y=" + m.Y.ToString();
 
             if (e.Button == MouseButtons.Left && drawingShape)
             {
-                Point m = e.Location;
-                SolidBrush whiteBrush = new SolidBrush(Color.White);
-                SolidBrush fillBrush = new SolidBrush(Color.WhiteSmoke);
-                Pen pen = new Pen(Color.Black, 1);
-
                 // If inside the bounds of a rectangle from original start point
                 if (m.X > tempShape.x1 && m.Y > tempShape.y1)
                 {
@@ -163,6 +201,37 @@ namespace FDesigner
                     pictureBox1.Image = canvas;
                 }
             }
+
+            if (e.Button == MouseButtons.Left && movingShape)
+            {
+                int oldX = shapes[selectedShapeIndex].x1;
+                int oldY = shapes[selectedShapeIndex].y1;
+
+                shapes[selectedShapeIndex].x1 = m.X - selectedShapeOffset.X;
+                shapes[selectedShapeIndex].y1 = m.Y - selectedShapeOffset.Y;
+                //drawShapesQueue();
+
+                // Get underlying region
+                Rectangle rect = new Rectangle(oldX-5, oldY-5, shapes[selectedShapeIndex].bitmap.Width+10, shapes[selectedShapeIndex].bitmap.Height+10);
+                Bitmap underBmp = new Bitmap(shapes[selectedShapeIndex].bitmap.Width, shapes[selectedShapeIndex].bitmap.Height);
+                using (Graphics u = Graphics.FromImage(underBmp))
+                    u.DrawImage(tempCanvas, 0, 0, rect, GraphicsUnit.Pixel);
+
+                // Draw temp bitmap to canvas
+                using (Graphics g = Graphics.FromImage(canvas))
+                {
+                    g.DrawImage(underBmp, oldX, oldY);
+                    g.DrawImage(shapes[selectedShapeIndex].bitmap, new Point(shapes[selectedShapeIndex].x1, shapes[selectedShapeIndex].y1));
+
+                    Pen p = new Pen(Color.Green);
+                    p.DashPattern = new float[] { 9.0F, 6.0F, 4.0F, 3.0F };
+
+                    g.DrawRectangle(p, shapes[selectedShapeIndex].x1 - 5, shapes[selectedShapeIndex].y1 - 5, shapes[selectedShapeIndex].bitmap.Width + 10, shapes[selectedShapeIndex].bitmap.Height + 10);
+
+                }
+
+                pictureBox1.Image = canvas;
+            }
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
@@ -193,6 +262,8 @@ namespace FDesigner
 
                 // Add the shape to the list
                 shapes.Add(newShape);
+
+                selectedShape = ShapeType.NONE;
             }
             
         }
