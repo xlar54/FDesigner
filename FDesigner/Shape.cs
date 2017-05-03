@@ -17,8 +17,20 @@ namespace FDesigner
 
         public int z;
         public Bitmap bitmap;
-
         public bool selected = false;
+
+        public Rectangle rect
+        {
+            get { return new Rectangle(x1, y1, bitmap.Width, bitmap.Height);  }
+        }
+
+        public void Draw(Image canvas)
+        {
+            using (Graphics g = Graphics.FromImage(canvas))
+            {
+                g.DrawImage(this.bitmap, new Point(this.x1, this.y1));
+            }
+        }
 
     }
 }

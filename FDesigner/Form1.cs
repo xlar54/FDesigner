@@ -71,32 +71,38 @@ namespace FDesigner
         private void btnSquare_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.BOX;
-
+            foreach (Shape s in shapes)
+                s.selected = false;
             drawShapesQueue();
         }
 
         private void btnDiamond_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.DIAMOND;
-
+            foreach (Shape s in shapes)
+                s.selected = false;
             drawShapesQueue();
         }
 
         private void btnCircle_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.CIRCLE;
-
+            foreach (Shape s in shapes)
+                s.selected = false;
             drawShapesQueue();
         }
 
         private void btnTriangle_Click(object sender, EventArgs e)
         {
             selectedShape = ShapeType.TRIANGLE;
+            foreach (Shape s in shapes)
+                s.selected = false;
             drawShapesQueue();
         }
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
+            // User starts to draw a shape
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape != ShapeType.NONE)
             {
                 drawShapesQueue();
@@ -109,6 +115,7 @@ namespace FDesigner
                 return;
             }
 
+            // User moves a shape
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
             {
                 Point m = e.Location;
@@ -218,18 +225,9 @@ namespace FDesigner
 
                     tempShape.bitmap.MakeTransparent(Color.White);
 
-                    // Get underlying region
-                    Rectangle rect = new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight);
-                    Bitmap underBmp = new Bitmap(maxWidth, maxHeight);
-                    using (Graphics u = Graphics.FromImage(underBmp))
-                        u.DrawImage(tempCanvas, 0, 0, rect, GraphicsUnit.Pixel);
-
-                    // Draw temp bitmap to canvas
-                    using (Graphics g = Graphics.FromImage(canvas))
-                    {
-                        g.DrawImage(underBmp, tempShape.x1, tempShape.y1);
-                        g.DrawImage(tempShape.bitmap, new Point(tempShape.x1, tempShape.y1));
-                    }
+                    // Get underlying region, draw it, then draw the shape
+                    ReplaceBitmapRegion(tempCanvas, canvas, new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight));
+                    tempShape.Draw(canvas);
 
                     pictureBox1.Image = canvas;
                 }
@@ -237,31 +235,12 @@ namespace FDesigner
 
             if (e.Button == MouseButtons.Left && movingShape)
             {
-                int oldX = shapes[selectedShapeIndex].x1;
-                int oldY = shapes[selectedShapeIndex].y1;
+                // Get underlying region, draw it, then draw the shape
+                ReplaceBitmapRegion(tempCanvas, canvas, shapes[selectedShapeIndex].rect);
 
                 shapes[selectedShapeIndex].x1 = m.X - selectedShapeOffset.X;
                 shapes[selectedShapeIndex].y1 = m.Y - selectedShapeOffset.Y;
-                //drawShapesQueue();
-
-                // Get underlying region
-                Rectangle rect = new Rectangle(oldX-5, oldY-5, shapes[selectedShapeIndex].bitmap.Width+10, shapes[selectedShapeIndex].bitmap.Height+10);
-                Bitmap underBmp = new Bitmap(shapes[selectedShapeIndex].bitmap.Width, shapes[selectedShapeIndex].bitmap.Height);
-                using (Graphics u = Graphics.FromImage(underBmp))
-                    u.DrawImage(tempCanvas, 0, 0, rect, GraphicsUnit.Pixel);
-
-                // Draw temp bitmap to canvas
-                using (Graphics g = Graphics.FromImage(canvas))
-                {
-                    g.DrawImage(underBmp, oldX, oldY);
-                    g.DrawImage(shapes[selectedShapeIndex].bitmap, new Point(shapes[selectedShapeIndex].x1, shapes[selectedShapeIndex].y1));
-
-                    Pen p = new Pen(Color.Green);
-                    p.DashPattern = new float[] { 9.0F, 6.0F, 4.0F, 3.0F };
-
-                    g.DrawRectangle(p, shapes[selectedShapeIndex].x1 - 5, shapes[selectedShapeIndex].y1 - 5, shapes[selectedShapeIndex].bitmap.Width + 10, shapes[selectedShapeIndex].bitmap.Height + 10);
-
-                }
+                shapes[selectedShapeIndex].Draw(canvas);
 
                 pictureBox1.Image = canvas;
             }
@@ -272,18 +251,7 @@ namespace FDesigner
             if (drawingShape)
             {
                 drawingShape = false;
-                canvas = tempCanvas;
-
-                Pen p = new Pen(Color.Green);
-                p.DashPattern = new float[] { 9.0F, 2.0F, 1.0F, 3.0F };
-
-                using (Graphics g = Graphics.FromImage(canvas))
-                {
-                    g.DrawImage(tempShape.bitmap, new Point(tempShape.x1, tempShape.y1));
-                    g.DrawRectangle(p, tempShape.x1 - 5, tempShape.y1 - 5, tempShape.bitmap.Width + 10, tempShape.bitmap.Height + 10);
-                }
-
-                pictureBox1.Image = canvas;
+                selectedShape = ShapeType.NONE;
 
                 maxHeight = 0;
                 maxWidth = 0;
@@ -292,11 +260,22 @@ namespace FDesigner
                 newShape.x1 = tempShape.x1;
                 newShape.y1 = tempShape.y1;
                 newShape.bitmap = (Bitmap)tempShape.bitmap.Clone();
-
-                // Add the shape to the list
+                newShape.selected = true;
                 shapes.Add(newShape);
 
-                selectedShape = ShapeType.NONE;
+                drawShapesQueue();
+            }
+
+            if (movingShape)
+            {
+                movingShape = false;
+
+                // Quick swap so that the last moved shape is highest z-order
+                shapes.Add(shapes[selectedShapeIndex]);
+                shapes.RemoveAt(selectedShapeIndex);
+
+                drawShapesQueue();
+                
             }
             
         }
@@ -304,11 +283,21 @@ namespace FDesigner
         private void drawShapesQueue()
         {
             clearCanvas();
+            Pen p = new Pen(Color.Green);
+            p.DashPattern = new float[] { 9.0F, 2.0F, 1.0F, 3.0F };
 
             using (Graphics g = Graphics.FromImage(canvas))
             {
                 foreach (Shape s in shapes)
+                {
                     g.DrawImage(s.bitmap, new Point(s.x1, s.y1));
+
+                    if (s.selected)
+                    {
+                        g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
+                    }
+                }
+                    
             }
 
             pictureBox1.Image = canvas;
@@ -373,5 +362,23 @@ namespace FDesigner
             }
             
         }
+
+        private void ReplaceBitmapRegion(Image srcImage, Image destImage, Rectangle rect)
+        {
+            Bitmap tempBmp = new Bitmap(rect.Width, rect.Height);
+            using (Graphics u = Graphics.FromImage(tempBmp))
+                u.DrawImage(srcImage, 0, 0, rect, GraphicsUnit.Pixel);
+
+            // Draw temp bitmap to canvas
+            using (Graphics g = Graphics.FromImage(destImage))
+            {
+                g.DrawImage(tempBmp, rect.X, rect.Y);
+
+                //Pen p = new Pen(Color.Green);
+                //p.DashPattern = new float[] { 9.0F, 6.0F, 4.0F, 3.0F };
+                //g.DrawRectangle(p, shapes[selectedShapeIndex].x1 - 5, shapes[selectedShapeIndex].y1 - 5, shapes[selectedShapeIndex].bitmap.Width + 10, shapes[selectedShapeIndex].bitmap.Height + 10);
+            }
+        }
+
     }
 }
