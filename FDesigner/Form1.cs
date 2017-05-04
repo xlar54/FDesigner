@@ -118,14 +118,13 @@ namespace FDesigner
             // User moves a shape (or clicks canvas)
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
             {
-                this.Cursor = Cursors.SizeAll;
-
                 shapeMgr.DeselectAll();
 
                 int shapeAtPoint = shapeMgr.ShapeIndexAtPoint(m);
 
                 if (shapeAtPoint > -1)
                 {
+                    this.Cursor = Cursors.SizeAll;
                     shapeMgr.SelectedIndex = shapeAtPoint;
                     drawShapesQueue();
 
@@ -242,9 +241,10 @@ namespace FDesigner
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
+            this.Cursor = Cursors.Arrow;
+
             if (drawingShape)
             {
-                this.Cursor = Cursors.Arrow;
                 drawingShape = false;
                 selectedShape = ShapeType.NONE;
 
@@ -263,7 +263,6 @@ namespace FDesigner
 
             if (movingShape)
             {
-                this.Cursor = Cursors.Arrow;
                 movingShape = false;
                 shapeMgr.MoveToBottom(shapeMgr.SelectedIndex);
                 drawShapesQueue();

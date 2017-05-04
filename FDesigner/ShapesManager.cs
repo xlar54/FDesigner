@@ -75,8 +75,34 @@ namespace FDesigner
 
                     if (s.selected)
                     {
+                        SolidBrush br = new SolidBrush(Color.Black);
                         //g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
+                        
+                        // Draw bounding box
                         g.DrawRectangle(p, s.x1, s.y1, s.bitmap.Width, s.bitmap.Height);
+
+                        //Draw handles
+
+                        // Top Left
+                        g.FillRectangle(br, new Rectangle(s.x1, s.y1, 10, 10));
+                        // Top middle
+                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width/2) - 5, s.y1, 10, 10));
+                        // Top right
+                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1, 10, 10));
+
+                        // Bottom Left
+                        g.FillRectangle(br, new Rectangle(s.x1, s.y1 + s.bitmap.Height - 10, 10, 10));
+                        // Bottom middle
+                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width / 2) - 5, s.y1 + s.bitmap.Height - 10, 10, 10));
+                        // Bottom right
+                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1 + s.bitmap.Height - 10, 10, 10));
+
+                        // Center Left
+                        g.FillRectangle(br, new Rectangle(s.x1, s.y1 + (s.bitmap.Height/2) - 5, 10, 10));
+                        // Center Middle
+                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width / 2) - 5, s.y1 + (s.bitmap.Height / 2) - 5, 10, 10));
+                        // Center Right
+                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1 + (s.bitmap.Height / 2) - 5, 10, 10));
                     }
                 }
             }
