@@ -105,6 +105,7 @@ namespace FDesigner
             // User starts to draw a shape
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape != ShapeType.NONE)
             {
+                this.Cursor = Cursors.SizeNWSE;
                 drawShapesQueue();
                 
                 tempShape.x1 = m.X;
@@ -117,6 +118,8 @@ namespace FDesigner
             // User moves a shape (or clicks canvas)
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
             {
+                this.Cursor = Cursors.SizeAll;
+
                 shapeMgr.DeselectAll();
 
                 int shapeAtPoint = shapeMgr.ShapeIndexAtPoint(m);
@@ -241,6 +244,7 @@ namespace FDesigner
         {
             if (drawingShape)
             {
+                this.Cursor = Cursors.Arrow;
                 drawingShape = false;
                 selectedShape = ShapeType.NONE;
 
@@ -259,6 +263,7 @@ namespace FDesigner
 
             if (movingShape)
             {
+                this.Cursor = Cursors.Arrow;
                 movingShape = false;
                 shapeMgr.MoveToBottom(shapeMgr.SelectedIndex);
                 drawShapesQueue();

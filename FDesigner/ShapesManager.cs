@@ -75,7 +75,8 @@ namespace FDesigner
 
                     if (s.selected)
                     {
-                        g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
+                        //g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
+                        g.DrawRectangle(p, s.x1, s.y1, s.bitmap.Width, s.bitmap.Height);
                     }
                 }
             }
