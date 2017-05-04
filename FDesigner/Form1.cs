@@ -139,101 +139,17 @@ namespace FDesigner
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            Point m = e.Location;
-            SolidBrush whiteBrush = new SolidBrush(Color.White);
-            SolidBrush fillBrush = new SolidBrush(Color.WhiteSmoke);
-            Pen pen = new Pen(Color.Black, 1);
-
-            label1.Text = "X=" + m.X.ToString() + ", Y=" + m.Y.ToString();
+            Point location = e.Location;
+            label1.Text = "X=" + location.X.ToString() + ", Y=" + location.Y.ToString();
 
             if (e.Button == MouseButtons.Left && drawingShape)
             {
-                // If inside the bounds of a rectangle from original start point
-                if (m.X > tempShape.x1 && m.Y > tempShape.y1)
-                {
-                    // Create a bitmap of size start to current
-                    int width = m.X + 1 - tempShape.x1;
-                    int height = m.Y + 1 - tempShape.y1;
-
-                    // We have to stop any crazy sizing for performance reasons
-                    if (width > 200 || height > 200)
-                        return;
-
-                    tempShape.bitmap = new Bitmap(width, height);
-
-                    // Track the max size so when user retracts, we can copy underlying back in
-                    if (tempShape.bitmap.Width > maxWidth) maxWidth = tempShape.bitmap.Width;
-                    if (tempShape.bitmap.Height > maxHeight) maxHeight = tempShape.bitmap.Height;
-
-                    using (Graphics gb = Graphics.FromImage(tempShape.bitmap))
-                    {
-                        gb.SmoothingMode = SmoothingMode.AntiAlias;
-
-                        // Draw shape to temp bitmap 
-                        switch (selectedShape)
-                        {
-                            case ShapeType.BOX:
-                                {
-                                    gb.FillRectangle(fillBrush, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
-                                    gb.DrawRectangle(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
-                                    break;
-                                }
-                                
-                            case ShapeType.DIAMOND:
-                                {
-                                    Point[] points = new Point[4];
-                                    points[0] = new Point(0, tempShape.bitmap.Height / 2);
-                                    points[1] = new Point(tempShape.bitmap.Width / 2, 0);
-                                    points[2] = new Point(tempShape.bitmap.Width - 1, tempShape.bitmap.Height / 2);
-                                    points[3] = new Point(tempShape.bitmap.Width / 2, tempShape.bitmap.Height - 1);
-                                    gb.FillPolygon(fillBrush, points);
-                                    gb.DrawPolygon(pen, points);
-                                    break;
-                                }
-
-                            case ShapeType.CIRCLE:
-                                {
-                                    gb.FillEllipse(fillBrush, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
-                                    gb.DrawEllipse(pen, 0, 0, tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
-                                    break;
-                                }
-                                
-                            case ShapeType.TRIANGLE:
-                                {
-                                    Point[] points = new Point[3];
-                                    points[0] = new Point(0, tempShape.bitmap.Height-1);
-                                    points[1] = new Point(tempShape.bitmap.Width / 2, 0);
-                                    points[2] = new Point(tempShape.bitmap.Width-1, tempShape.bitmap.Height-1);
-                                    gb.FillPolygon(fillBrush, points);
-                                    gb.DrawPolygon(pen, points);
-                                    break;
-                                }
-                                
-                            default:
-                                throw new Exception("you done goofed");
-                        }
-                    }
-
-                    tempShape.bitmap.MakeTransparent(Color.White);
-
-                    // Get underlying region, draw it, then draw the shape
-                    ReplaceBitmapRegion(tempCanvas, mainCanvas, new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight));
-                    tempShape.Draw(mainCanvas);
-
-                    pictureBox1.Image = mainCanvas;
-                }
+                drawShape(location);
             }
 
             if (e.Button == MouseButtons.Left && movingShape)
             {
-                // Get underlying region, draw it, then draw the shape
-                ReplaceBitmapRegion(tempCanvas, mainCanvas, shapeMgr.SelectedShape.rect);
-
-                shapeMgr.SelectedShape.x1 = m.X - mouseOffset.X;
-                shapeMgr.SelectedShape.y1 = m.Y - mouseOffset.Y;
-                shapeMgr.SelectedShape.Draw(mainCanvas);
-
-                pictureBox1.Image = mainCanvas;
+                moveSelectedShape(location);
             }
         }
 
@@ -264,6 +180,103 @@ namespace FDesigner
                 drawShapesQueue();
             }
             
+        }
+
+        private void drawShape(Point location)
+        {
+            SolidBrush whiteBrush = new SolidBrush(Color.White);
+            SolidBrush fillBrush = new SolidBrush(Color.WhiteSmoke);
+            Pen pen = new Pen(Color.Black, 1);
+
+            // If inside the bounds of a rectangle from original start point
+            if (location.X > tempShape.x1 && location.Y > tempShape.y1)
+            {
+                // Create a bitmap of size start to current
+                int width = location.X + 1 - tempShape.x1;
+                int height = location.Y + 1 - tempShape.y1;
+
+                // We have to stop any crazy sizing for performance reasons
+                if (width > 200 || height > 200)
+                    return;
+
+                tempShape.bitmap = new Bitmap(width, height);
+
+                // Track the max size so when user retracts, we can copy underlying back in
+                if (tempShape.bitmap.Width > maxWidth) maxWidth = tempShape.bitmap.Width;
+                if (tempShape.bitmap.Height > maxHeight) maxHeight = tempShape.bitmap.Height;
+
+                using (Graphics gb = Graphics.FromImage(tempShape.bitmap))
+                {
+                    gb.SmoothingMode = SmoothingMode.AntiAlias;
+
+                    // Draw shape to temp bitmap 
+                    switch (selectedShape)
+                    {
+                        case ShapeType.BOX:
+                            {
+                                gb.FillRectangle(fillBrush, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                gb.DrawRectangle(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                break;
+                            }
+
+                        case ShapeType.DIAMOND:
+                            {
+                                Point[] points = new Point[4];
+                                points[0] = new Point(0, tempShape.bitmap.Height / 2);
+                                points[1] = new Point(tempShape.bitmap.Width / 2, 0);
+                                points[2] = new Point(tempShape.bitmap.Width - 1, tempShape.bitmap.Height / 2);
+                                points[3] = new Point(tempShape.bitmap.Width / 2, tempShape.bitmap.Height - 1);
+                                gb.FillPolygon(fillBrush, points);
+                                gb.DrawPolygon(pen, points);
+                                break;
+                            }
+
+                        case ShapeType.CIRCLE:
+                            {
+                                gb.FillEllipse(fillBrush, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                gb.DrawEllipse(pen, 0, 0, tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                break;
+                            }
+
+                        case ShapeType.TRIANGLE:
+                            {
+                                Point[] points = new Point[3];
+                                points[0] = new Point(0, tempShape.bitmap.Height - 1);
+                                points[1] = new Point(tempShape.bitmap.Width / 2, 0);
+                                points[2] = new Point(tempShape.bitmap.Width - 1, tempShape.bitmap.Height - 1);
+                                gb.FillPolygon(fillBrush, points);
+                                gb.DrawPolygon(pen, points);
+                                break;
+                            }
+
+                        default:
+                            throw new Exception("you done goofed");
+                    }
+                }
+
+                tempShape.bitmap.MakeTransparent(Color.White);
+
+                // Get underlying region, draw it, then draw the shape
+                Rectangle r = new Rectangle(tempShape.x1, tempShape.y1, maxWidth, maxHeight);
+                ReplaceBitmapRegion(tempCanvas, mainCanvas, r);
+                pictureBox1.Invalidate(r);
+
+                tempShape.Draw(mainCanvas);
+                pictureBox1.Invalidate(tempShape.rect);
+            }
+        }
+
+        private void moveSelectedShape(Point location)
+        {
+            // Get underlying region, draw it
+            ReplaceBitmapRegion(tempCanvas, mainCanvas, shapeMgr.SelectedShape.rect);
+            pictureBox1.Invalidate(shapeMgr.SelectedShape.rect);
+
+            // draw at new location
+            shapeMgr.SelectedShape.x1 = location.X - mouseOffset.X;
+            shapeMgr.SelectedShape.y1 = location.Y - mouseOffset.Y;
+            shapeMgr.SelectedShape.Draw(mainCanvas);
+            pictureBox1.Invalidate(shapeMgr.SelectedShape.rect);
         }
 
         private void drawShapesQueue()
