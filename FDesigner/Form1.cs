@@ -105,6 +105,7 @@ namespace FDesigner
             // User starts to draw a shape
             if (e.Button == MouseButtons.Left && !drawingShape && selectedShape != ShapeType.NONE)
             {
+                this.Cursor = Cursors.SizeNWSE;
                 drawShapesQueue();
                 
                 tempShape.x1 = m.X;
@@ -123,6 +124,7 @@ namespace FDesigner
 
                 if (shapeAtPoint > -1)
                 {
+                    this.Cursor = Cursors.SizeAll;
                     shapeMgr.SelectedIndex = shapeAtPoint;
                     drawShapesQueue();
 
@@ -155,6 +157,8 @@ namespace FDesigner
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
+            this.Cursor = Cursors.Arrow;
+
             if (drawingShape)
             {
                 drawingShape = false;
