@@ -9,6 +9,15 @@ namespace FDesigner
 {
     public class Shape
     {
+        public enum ShapeType
+        {
+            NONE,
+            BOX,
+            DIAMOND,
+            CIRCLE,
+            TRIANGLE,
+        }
+
         public int x1 = 0;
         public int y1 = 0;
 
@@ -18,6 +27,9 @@ namespace FDesigner
         public int z;
         public Bitmap bitmap;
         public bool selected = false;
+
+        // Bleh
+        public ShapeType shapeType;
 
         public Rectangle rect
         {
@@ -30,6 +42,18 @@ namespace FDesigner
             {
                 g.DrawImage(this.bitmap, new Point(this.x1, this.y1));
             }
+        }
+
+        public Shape Clone()
+        {
+            Shape newShape = new Shape();
+
+            newShape.x1 = x1;
+            newShape.y1 = y1;
+            newShape.bitmap = (Bitmap)bitmap.Clone();
+            newShape.shapeType = shapeType;
+
+            return newShape;
         }
 
     }

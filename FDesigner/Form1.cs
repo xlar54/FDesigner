@@ -10,18 +10,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static FDesigner.Shape;
 
 namespace FDesigner
 {
     public partial class Form1 : Form
     {
-        public enum ShapeType
+        public enum CanvasMode
         {
             NONE,
-            BOX,
-            DIAMOND,
-            CIRCLE,
-            TRIANGLE,
+            DRAW,
+            MOVE
         }
 
         Bitmap mainCanvas = new Bitmap(1280, 960);
@@ -29,11 +28,10 @@ namespace FDesigner
 
         ShapesManager shapeMgr = new ShapesManager();
 
-        public ShapeType selectedShape;
         public bool drawingShape = false;
         public bool movingShape = false;
         public Point mouseOffset;
-        public Shape tempShape = new Shape();
+        public Shape tempShape;
 
         int maxHeight;
         int maxWidth;
@@ -71,7 +69,8 @@ namespace FDesigner
 
         private void btnSquare_Click(object sender, EventArgs e)
         {
-            selectedShape = ShapeType.BOX;
+            tempShape = new Shape();
+            tempShape.shapeType = ShapeType.BOX;
 
             shapeMgr.DeselectAll();
             drawShapesQueue();
@@ -79,21 +78,24 @@ namespace FDesigner
 
         private void btnDiamond_Click(object sender, EventArgs e)
         {
-            selectedShape = ShapeType.DIAMOND;
+            tempShape = new Shape();
+            tempShape.shapeType = ShapeType.DIAMOND;
             shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
         private void btnCircle_Click(object sender, EventArgs e)
         {
-            selectedShape = ShapeType.CIRCLE;
+            tempShape = new Shape();
+            tempShape.shapeType = ShapeType.CIRCLE;
             shapeMgr.DeselectAll();
             drawShapesQueue();
         }
 
         private void btnTriangle_Click(object sender, EventArgs e)
         {
-            selectedShape = ShapeType.TRIANGLE;
+            tempShape = new Shape();
+            tempShape.shapeType = ShapeType.TRIANGLE;
             shapeMgr.DeselectAll();
             drawShapesQueue();
         }
@@ -101,10 +103,23 @@ namespace FDesigner
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             Point m = e.Location;
-            
-            // User starts to draw a shape
-            if (e.Button == MouseButtons.Left && !drawingShape && selectedShape != ShapeType.NONE)
+
+            // Are we clicking on an existing shape, or empty area
+            int shapeAtPoint = shapeMgr.ShapeIndexAtPoint(m);
+
+            // User clicks empty area
+            if (e.Button == MouseButtons.Left && shapeAtPoint == -1 && tempShape == null)
             {
+                shapeMgr.DeselectAll();
+                drawShapesQueue();
+                return;
+            }
+
+            // User starts to draw a new shape
+            if (e.Button == MouseButtons.Left && shapeAtPoint == -1 && tempShape != null)
+            {
+                shapeMgr.DeselectAll();
+
                 this.Cursor = Cursors.SizeNWSE;
                 drawShapesQueue();
                 
@@ -115,24 +130,32 @@ namespace FDesigner
                 return;
             }
 
-            // User moves a shape (or clicks canvas)
-            if (e.Button == MouseButtons.Left && !drawingShape && selectedShape == ShapeType.NONE)
+            // User clicks a shape, go to move mode
+            if (e.Button == MouseButtons.Left && shapeAtPoint > -1)
             {
                 shapeMgr.DeselectAll();
 
-                int shapeAtPoint = shapeMgr.ShapeIndexAtPoint(m);
+                this.Cursor = Cursors.SizeAll;
+                shapeMgr.SelectedIndex = shapeAtPoint;
+                drawShapesQueue();
 
-                if (shapeAtPoint > -1)
+                // Check if mouse is over a handle
+                if (m.X > shapeMgr.SelectedShape.x1 + shapeMgr.SelectedShape.bitmap.Width - 10 
+                    && m.Y > shapeMgr.SelectedShape.y1 + shapeMgr.SelectedShape.bitmap.Height - 10)
                 {
-                    this.Cursor = Cursors.SizeAll;
-                    shapeMgr.SelectedIndex = shapeAtPoint;
-                    drawShapesQueue();
+                    tempShape = shapeMgr.SelectedShape.Clone();
 
+                    shapeMgr.RemoveAt(shapeMgr.SelectedIndex);
+
+                    drawingShape = true;
+                    tempCanvas = (Bitmap)mainCanvas.Clone();
+                }
+                else
+                {
                     movingShape = true;
                     mouseOffset = new Point(m.X - shapeMgr.SelectedShape.x1, m.Y - shapeMgr.SelectedShape.y1);
                     tempCanvas = (Bitmap)mainCanvas.Clone();
                 }
-
 
                 drawShapesQueue();
             }
@@ -162,17 +185,14 @@ namespace FDesigner
             if (drawingShape)
             {
                 drawingShape = false;
-                selectedShape = ShapeType.NONE;
 
                 maxHeight = 0;
                 maxWidth = 0;
 
-                Shape newShape = new Shape();
-                newShape.x1 = tempShape.x1;
-                newShape.y1 = tempShape.y1;
-                newShape.bitmap = (Bitmap)tempShape.bitmap.Clone();
+                Shape newShape = tempShape.Clone();
                 newShape.selected = true;
                 shapeMgr.shapes.Add(newShape);
+                tempShape = null;
 
                 drawShapesQueue();
             }
@@ -214,7 +234,7 @@ namespace FDesigner
                     gb.SmoothingMode = SmoothingMode.AntiAlias;
 
                     // Draw shape to temp bitmap 
-                    switch (selectedShape)
+                    switch (tempShape.shapeType)
                     {
                         case ShapeType.BOX:
                             {
@@ -377,6 +397,14 @@ namespace FDesigner
         private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
             e.Graphics.DrawImage(pictureBox1.Image, 0, 0);
+        }
+
+        private void newToolStripMenuItem2_Click(object sender, EventArgs e)
+        {
+            clearCanvas(mainCanvas);
+            tempShape = new Shape();
+            shapeMgr.shapes.Clear();
+
         }
     }
 }

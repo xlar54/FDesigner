@@ -56,6 +56,11 @@ namespace FDesigner
 
         }
 
+        public void RemoveAt(int index)
+        {
+            shapes.RemoveAt(index);
+        }
+
         public void MoveToBottom(int index)
         {
             shapes.Add(shapes[index]);
