@@ -183,10 +183,12 @@ namespace FDesigner
 
                 if (shapeSelection.grabArea == Canvas.GrabArea.AREA || shapeSelection.grabArea == Canvas.GrabArea.HANDLE_MIDCENTER)
                 {
+                    Cursor.Current = Cursors.SizeAll;
                     pictureBox1.Image = canvas.DragShape(x, y, tempShape, mouseOffset);
                 }
                 else
                 {
+                    Cursor.Current = shapeSelection.cursor;
                     mouseOffset = new Point(x - tempShape.x1, y - tempShape.y1);
                     tempShape = canvas.ResizeShape(x, y, tempShape, shapeSelection.grabArea);
                     pictureBox1.Image = canvas.bitmap;
@@ -200,6 +202,10 @@ namespace FDesigner
             
         }
 
+        private void pictureBox1_GiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            e.UseDefaultCursors = false;
+        }
 
         private void deselectAll()
         {

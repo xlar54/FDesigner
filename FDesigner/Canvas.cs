@@ -29,6 +29,7 @@ namespace FDesigner
         {
             public int index;
             public GrabArea grabArea;
+            public Cursor cursor;
         }
 
         Bitmap canvas;
@@ -114,44 +115,70 @@ namespace FDesigner
                 // Select the topmost selected shape
                 if (p.X >= s.x1 && p.X <= s.x2 && p.Y >= s.y1 && p.Y <= s.y2)
                 {
+                    
                     shapeSelection.index = x;
 
                     if (p.X > s.x1 + s.bitmap.Width - 10 && p.Y > s.y1 + s.bitmap.Height - 10)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_BTMRIGHT;
+                        shapeSelection.cursor = Cursors.SizeNWSE;
+                    }
+                       
 
                     if (p.X > s.x1 + (s.bitmap.Width / 2) - 5
                         && p.X < s.x1 + (s.bitmap.Width / 2) + 5
                         && p.Y > s.y1 + (s.bitmap.Height / 2) - 5
                         && p.Y > s.y1 + (s.bitmap.Height / 2) + 5)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_BTMCENTER;
+                        shapeSelection.cursor = Cursors.SizeNS;
+                    }
 
                     if (p.X > s.x1
                         && p.X < s.x1 + 10
                         && p.Y > s.y1 + (s.bitmap.Height - 10)
                         && p.Y < s.y1 + s.bitmap.Height)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_BTMLEFT;
+                        shapeSelection.cursor = Cursors.SizeNESW;
+                    }
 
                     if (p.X > s.x1 && p.X < s.x1 + 10
                         && p.Y > s.y1 + (s.bitmap.Height / 2) - 5
                         && p.Y < s.y1 + (s.bitmap.Height / 2) + 5)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_MIDLEFT;
+                        shapeSelection.cursor = Cursors.SizeWE;
+                    }
 
                     if (p.X > s.x1 + s.bitmap.Width - 10
                         && p.Y > s.y1 + (s.bitmap.Height / 2) - 5
                         && p.Y < s.y1 + (s.bitmap.Height / 2) + 5)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_MIDRIGHT;
+                        shapeSelection.cursor = Cursors.SizeWE;
+                    }
 
                     if (p.X > s.x1 && p.X < s.x1 + 10
                         && p.Y > s.y1 && p.Y < s.y1 + 10)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_TOPLEFT;
+                        shapeSelection.cursor = Cursors.SizeNWSE;
+                    }
 
                     if (p.X > s.x1 + s.bitmap.Width - 10 && p.Y > s.y1 && p.Y < s.y1 + 10)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_TOPRIGHT;
+                        shapeSelection.cursor = Cursors.SizeNESW;
+                    }
 
                     if (p.X > s.x1 + (s.bitmap.Width / 2) - 5
                         && p.X < s.x1 + (s.bitmap.Width / 2) + 5
                         && p.Y > s.y1 && p.Y < s.y1 + 10)
+                    {
                         shapeSelection.grabArea = GrabArea.HANDLE_TOPCENTER;
+                        shapeSelection.cursor = Cursors.SizeNS;
+                    }
 
                     break;
                 }
