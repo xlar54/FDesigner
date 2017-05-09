@@ -7,6 +7,26 @@ using System.Threading.Tasks;
 
 namespace FDesigner
 {
+    public enum GrabArea
+    {
+        AREA,
+        HANDLE_TOPLEFT,
+        HANDLE_TOPCENTER,
+        HANDLE_TOPRIGHT,
+        HANDLE_MIDLEFT,
+        HANDLE_MIDCENTER,
+        HANDLE_MIDRIGHT,
+        HANDLE_BTMLEFT,
+        HANDLE_BTMCENTER,
+        HANDLE_BTMRIGHT
+    }
+
+    public struct ShapeSelection
+    {
+        public int index;
+        public GrabArea grabArea;
+    }
+
     public class ShapesManager
     {
         public List<Shape> shapes = new List<Shape>();
@@ -36,6 +56,18 @@ namespace FDesigner
             }
         }
 
+        public Shape SelectedShape
+        {
+            get
+            {
+                if (SelectedIndex > -1)
+                    return shapes[SelectedIndex];
+                else
+                    return null;
+            }
+
+        }
+
         public void Deselect(int x)
         {
             shapes[x].selected = false;
@@ -47,13 +79,10 @@ namespace FDesigner
                 s.selected = false;
         }
 
-        public Shape SelectedShape
+        public void MoveToBottom(int index)
         {
-            get
-            {
-                return shapes[SelectedIndex];
-            }
-
+            shapes.Add(shapes[index]);
+            shapes.RemoveAt(index);
         }
 
         public void RemoveAt(int index)
@@ -61,72 +90,37 @@ namespace FDesigner
             shapes.RemoveAt(index);
         }
 
-        public void MoveToBottom(int index)
+        public ShapeSelection ShapeAtPoint(Point p)
         {
-            shapes.Add(shapes[index]);
-            shapes.RemoveAt(index);
-        }
+            ShapeSelection shapeSelection = new ShapeSelection{ index = -1, grabArea = GrabArea.AREA };
 
-        public void DrawAll(Image canvas)
-        {
-            Pen p = new Pen(Color.Green);
-            p.DashPattern = new float[] { 9.0F, 2.0F, 1.0F, 3.0F };
-
-            using (Graphics g = Graphics.FromImage(canvas))
-            {
-                foreach (Shape s in shapes)
-                {
-                    g.DrawImage(s.bitmap, new Point(s.x1, s.y1));
-
-                    if (s.selected)
-                    {
-                        SolidBrush br = new SolidBrush(Color.Black);
-                        //g.DrawRectangle(p, s.x1 - 5, s.y1 - 5, s.bitmap.Width + 10, s.bitmap.Height + 10);
-                        
-                        // Draw bounding box
-                        g.DrawRectangle(p, s.x1, s.y1, s.bitmap.Width, s.bitmap.Height);
-
-                        //Draw handles
-
-                        // Top Left
-                        g.FillRectangle(br, new Rectangle(s.x1, s.y1, 10, 10));
-                        // Top middle
-                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width/2) - 5, s.y1, 10, 10));
-                        // Top right
-                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1, 10, 10));
-
-                        // Bottom Left
-                        g.FillRectangle(br, new Rectangle(s.x1, s.y1 + s.bitmap.Height - 10, 10, 10));
-                        // Bottom middle
-                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width / 2) - 5, s.y1 + s.bitmap.Height - 10, 10, 10));
-                        // Bottom right
-                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1 + s.bitmap.Height - 10, 10, 10));
-
-                        // Center Left
-                        g.FillRectangle(br, new Rectangle(s.x1, s.y1 + (s.bitmap.Height/2) - 5, 10, 10));
-                        // Center Middle
-                        g.FillRectangle(br, new Rectangle(s.x1 + (s.bitmap.Width / 2) - 5, s.y1 + (s.bitmap.Height / 2) - 5, 10, 10));
-                        // Center Right
-                        g.FillRectangle(br, new Rectangle(s.x1 + s.bitmap.Width - 10, s.y1 + (s.bitmap.Height / 2) - 5, 10, 10));
-                    }
-                }
-            }
-        }
-
-        public int ShapeIndexAtPoint(Point p)
-        {
             for (int x = shapes.Count - 1; x > -1; x--)
             {
                 Shape s = shapes[x];
 
                 // Select the topmost selected shape
                 if (p.X >= s.x1 && p.X <= s.x2 && p.Y >= s.y1 && p.Y <= s.y2)
-                    return x;
+                {
+                    shapeSelection.index = x;
+
+                    if (p.X > s.x1 + s.bitmap.Width - 10 && p.Y > s.y1 + s.bitmap.Height - 10)
+                        shapeSelection.grabArea = GrabArea.HANDLE_BTMRIGHT;
+
+                    if (p.X > s.x1 + (s.bitmap.Width / 2) - 5
+                        && p.X < s.x1 + (s.bitmap.Width / 2) + 5
+                        && p.Y > s.y1 + (s.bitmap.Height / 2) - 5
+                        && p.Y > s.y1 + (s.bitmap.Height / 2) + 5)
+                        shapeSelection.grabArea = GrabArea.HANDLE_BTMCENTER;
+
+                    if (p.X > s.x1
+                        && p.X < s.x1 + 10
+                        && p.Y > s.y1 + (s.bitmap.Height - 10)
+                        && p.Y < s.y1 + s.bitmap.Height)
+                        shapeSelection.grabArea = GrabArea.HANDLE_BTMLEFT;
+                }               
             }
 
-            return -1;
+            return shapeSelection;
         }
-
-        
     }
 }
