@@ -16,6 +16,7 @@ namespace FDesigner
             DIAMOND,
             CIRCLE,
             TRIANGLE,
+            RIGHTARROW
         }
 
         public int x1 = 0;
@@ -109,6 +110,21 @@ namespace FDesigner
                             points[0] = new Point(0, h);
                             points[1] = new Point(w / 2, 0);
                             points[2] = new Point(w, h);
+                            g.FillPolygon(fillBrush, points);
+                            g.DrawPolygon(pen, points);
+                            break;
+                        }
+                    case ShapeType.RIGHTARROW:
+                        {
+                            Point[] points = new Point[7];
+                            points[0] = new Point(0, h/2 - 10);
+                            points[1] = new Point(w - 40, h / 2 - 10);
+                            points[2] = new Point(w - 40, h/2 - 30);
+                            points[3] = new Point(w, h/2);
+                            points[4] = new Point(w - 40, h/2 + 30);
+                            points[5] = new Point(w - 40, h / 2 + 10);
+                            points[6] = new Point(0, h / 2 + 10);
+
                             g.FillPolygon(fillBrush, points);
                             g.DrawPolygon(pen, points);
                             break;

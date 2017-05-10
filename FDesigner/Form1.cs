@@ -74,6 +74,14 @@ namespace FDesigner
             btnTriangle.DoDragDrop(ShapeType.TRIANGLE, DragDropEffects.Move);
         }
         
+        private void btnRightArrow_MouseDown(object sender, MouseEventArgs e)
+        {
+            deselectAll();
+            mouseOffset = new Point(0, 0);
+            tempShape = new Shape(ShapeType.RIGHTARROW, 0, 0, 100, 100);
+            btnTriangle.DoDragDrop(ShapeType.RIGHTARROW, DragDropEffects.Move);
+        }
+
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -151,7 +159,7 @@ namespace FDesigner
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
-            label1.Text = "X=" + e.X + ", Y=" + e.Y;
+            toolStripLabel1.Text = "X=" + e.X + ", Y=" + e.Y;
         }
 
 
@@ -165,7 +173,7 @@ namespace FDesigner
             int x = ((PictureBox)sender).PointToClient(new Point(e.X, e.Y)).X;
             int y = ((PictureBox)sender).PointToClient(new Point(e.X, e.Y)).Y;
 
-            label1.Text = "X=" + x + ", Y=" + y;
+            toolStripLabel1.Text = "X=" + x + ", Y=" + y;
 
             pictureBox1.Image = canvas.DropShape(x, y, tempShape, mouseOffset);
         }
@@ -175,7 +183,7 @@ namespace FDesigner
             int x = ((PictureBox)sender).PointToClient(new Point(e.X, e.Y)).X;
             int y = ((PictureBox)sender).PointToClient(new Point(e.X, e.Y)).Y;
 
-            label1.Text = "X=" + x + ", Y=" + y;
+            toolStripLabel1.Text = "X=" + x + ", Y=" + y;
 
             if (e.Data.GetData(typeof(Canvas.ShapeSelection)) != null)
             {
@@ -183,11 +191,13 @@ namespace FDesigner
 
                 if (shapeSelection.grabArea == Canvas.GrabArea.AREA || shapeSelection.grabArea == Canvas.GrabArea.HANDLE_MIDCENTER)
                 {
+                    // Moving a shape
                     Cursor.Current = Cursors.SizeAll;
                     pictureBox1.Image = canvas.DragShape(x, y, tempShape, mouseOffset);
                 }
                 else
                 {
+                    // Resizing a shape
                     Cursor.Current = shapeSelection.cursor;
                     mouseOffset = new Point(x - tempShape.x1, y - tempShape.y1);
                     tempShape = canvas.ResizeShape(x, y, tempShape, shapeSelection.grabArea);
@@ -196,6 +206,7 @@ namespace FDesigner
             }
             else
             {
+                // Dragging from toolbox
                 pictureBox1.Image = canvas.DragShape(x, y, tempShape, mouseOffset);
             }
 
