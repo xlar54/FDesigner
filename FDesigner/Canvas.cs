@@ -36,6 +36,8 @@ namespace FDesigner
         Bitmap buffer;
 
         public List<Shape> Shapes = new List<Shape>();
+        public List<Line> Lines = new List<Line>();
+        public List<TextBlock> TextBlocks = new List<TextBlock>();
 
         public int GridSize = 20;
 
@@ -196,12 +198,42 @@ namespace FDesigner
             }
         }
 
+        public void Draw(Line l)
+        {
+            using (Graphics g = Graphics.FromImage(canvas))
+            {
+                g.DrawLine(new Pen(Color.Black), l.x1, l.y1, l.x2, l.y2);
+            }
+        }
+
+        public void Draw(TextBlock tb)
+        {
+            using (Graphics g = Graphics.FromImage(canvas))
+            {
+                g.DrawRectangle(new Pen(Color.Black), tb.x1, tb.y1, tb.x2-tb.x1, tb.y2-tb.y1);
+            }
+        }
+
+        public void Draw(TextBlock tb, string s)
+        {
+            Font f = new Font(FontFamily.GenericMonospace, 10);
+
+            using (Graphics g = Graphics.FromImage(canvas))
+            {
+                g.DrawString(s, f, new SolidBrush(Color.Black), tb.x1, tb.y1);
+            }
+        }
+
         public void Refresh()
         {
             DrawGrid();
 
+            foreach (Line l in Lines)
+                Draw(l);
             foreach (Shape s in Shapes)
                 Draw(s);
+            foreach (TextBlock t in TextBlocks)
+                Draw(t, t.Text);
 
             buffer = (Bitmap)canvas.Clone();
         }

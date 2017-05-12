@@ -16,9 +16,23 @@ namespace FDesigner
 {
     public partial class Form1 : Form
     {
+        public enum Tool
+        {
+            SELECT,
+            LINE,
+            CONNECTOR,
+            TEXT
+        }
+
         Canvas canvas = new Canvas(1024, 768, 10);
+
         Shape tempShape = new Shape();
+        Line tempLine = new Line();
+        TextBlock tempTextBlock = new TextBlock();
+        bool processTextBlockKeys = false;
+
         public Point mouseOffset;
+        public Tool currentTool = Tool.SELECT;
 
         ContextMenuStrip popUpMenu = new ContextMenuStrip();
 
@@ -44,6 +58,7 @@ namespace FDesigner
 
         private void btnSquare_MouseDown(object sender, MouseEventArgs e)
         {
+            selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(ShapeType.BOX, 0, 0, 100, 100);
@@ -52,6 +67,7 @@ namespace FDesigner
 
         private void btnDiamond_MouseDown(object sender, MouseEventArgs e)
         {
+            selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(ShapeType.DIAMOND, 0, 0, 100, 100);
@@ -60,6 +76,7 @@ namespace FDesigner
 
         private void btnCircle_MouseDown(object sender, MouseEventArgs e)
         {
+            selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(ShapeType.CIRCLE, 0, 0, 100, 100);
@@ -68,6 +85,7 @@ namespace FDesigner
 
         private void btnTriangle_MouseDown(object sender, MouseEventArgs e)
         {
+            selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(ShapeType.TRIANGLE, 0, 0, 100, 100);
@@ -76,6 +94,7 @@ namespace FDesigner
         
         private void btnRightArrow_MouseDown(object sender, MouseEventArgs e)
         {
+            selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(ShapeType.RIGHTARROW, 0, 0, 100, 100);
@@ -125,42 +144,150 @@ namespace FDesigner
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-            Canvas.ShapeSelection shapeSelection = canvas.ShapeAtPoint(e.Location);
 
-            // User clicks empty area
-            if (shapeSelection.index == -1)
+            if (currentTool == Tool.SELECT)
             {
-                canvas.DeselectShapes();
-                canvas.Refresh();
-                pictureBox1.Image = canvas.bitmap;
+                Canvas.ShapeSelection shapeSelection = canvas.ShapeAtPoint(e.Location);
+
+                // User clicks empty area
+                if (shapeSelection.index == -1)
+                {
+                    canvas.DeselectShapes();
+                    canvas.Refresh();
+                    pictureBox1.Image = canvas.bitmap;
+                }
+
+                foreach (ToolStripItem item in popUpMenu.Items)
+                    item.Enabled = (shapeSelection.index > -1 ? true : false);
+
+                if (e.Button == MouseButtons.Left)
+                {
+                    if (shapeSelection.index > -1)
+                    {
+                        // Pick up the shape, and initiate a drag / drop
+                        canvas.SelectedShapeIndex = shapeSelection.index;
+                        tempShape = canvas.SelectedShape.Clone();
+                        canvas.Shapes.RemoveAt(shapeSelection.index);
+                        canvas.Refresh();
+
+                        tempShape.buffer = canvas.GetBitmapRegion(tempShape.rect);
+                        pictureBox1.Image = canvas.bitmap;
+
+                        mouseOffset = new Point(e.X - tempShape.x1, e.Y - tempShape.y1);
+                        pictureBox1.DoDragDrop(shapeSelection, DragDropEffects.Move);
+                    }
+                }
             }
 
-            foreach (ToolStripItem item in popUpMenu.Items)
-                item.Enabled = (shapeSelection.index > -1 ? true : false);
-
-            if (e.Button == MouseButtons.Left)
+            if (currentTool == Tool.LINE)
             {
-                if (shapeSelection.index > -1)
-                {
-                    // Pick up the shape, and initiate a drag / drop
-                    canvas.SelectedShapeIndex = shapeSelection.index;
-                    tempShape = canvas.SelectedShape.Clone();
-                    canvas.Shapes.RemoveAt(shapeSelection.index);
-                    canvas.Refresh();
+                tempLine.x1 = e.X;
+                tempLine.y1 = e.Y;
+            }
 
-                    tempShape.buffer = canvas.GetBitmapRegion(tempShape.rect);
-                    pictureBox1.Image = canvas.bitmap;
-
-                    mouseOffset = new Point(e.X - tempShape.x1, e.Y - tempShape.y1);
-                    pictureBox1.DoDragDrop(shapeSelection, DragDropEffects.Move);
-                }
+            if (currentTool == Tool.TEXT)
+            {
+                tempTextBlock.x1 = e.X;
+                tempTextBlock.y1 = e.Y;
             }
         }
 
         private void pictureBox1_MouseMove(object sender, MouseEventArgs e)
         {
             toolStripLabel1.Text = "X=" + e.X + ", Y=" + e.Y;
+
+            if (currentTool == Tool.LINE)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    canvas.Refresh();
+
+                    pictureBox1.Image = canvas.bitmap;
+
+                    tempLine.x2 = e.X;
+                    tempLine.y2 = e.Y;
+
+                    canvas.Draw(tempLine);
+
+                    pictureBox1.Image = canvas.bitmap;
+                }
+
+            }
+
+            if (currentTool == Tool.TEXT)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    canvas.Refresh();
+
+                    pictureBox1.Image = canvas.bitmap;
+
+                    tempTextBlock.x2 = e.X;
+                    tempTextBlock.y2 = e.Y;
+
+                    canvas.Draw(tempTextBlock);
+
+                    pictureBox1.Image = canvas.bitmap;
+                }
+
+            }
         }
+
+        private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (currentTool == Tool.LINE)
+            {
+                if (e.Button == MouseButtons.Left)
+                {
+                    tempLine.x2 = e.X;
+                    tempLine.y2 = e.Y;
+
+                    Line newLine = tempLine.Clone();
+
+                    canvas.Lines.Add(newLine);
+                    canvas.Refresh();
+                    pictureBox1.Image = canvas.bitmap;
+                }
+            }
+
+            if (currentTool == Tool.TEXT)
+            {
+                processTextBlockKeys = true;
+
+                TextBox textBox = new TextBox();
+                textBox.Name = "tempTextBox";
+                textBox.Location = new Point(tempTextBlock.x1, tempTextBlock.y1);
+                textBox.KeyPress += TextBox_KeyPress;
+                textBox.Font = new Font(FontFamily.GenericMonospace, 10);
+                textBox.Multiline = true;
+                textBox.Width = tempTextBlock.x2 - tempTextBlock.x1;
+                textBox.Height = tempTextBlock.y2 - tempTextBlock.y1;
+                
+                pictureBox1.Controls.Add(textBox);
+                textBox.Focus();
+            }
+        }
+
+        private void TextBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Escape)
+            {
+                tempTextBlock.Text = ((TextBox)sender).Text;
+                pictureBox1.Controls.Remove(((TextBox)sender));
+                ((TextBox)sender).Dispose();
+
+                TextBlock tb = tempTextBlock.Clone();
+                canvas.TextBlocks.Add(tb);
+                canvas.Refresh();
+                pictureBox1.Image = canvas.bitmap;
+
+            }
+            else
+            {
+                tempTextBlock.Text = ((TextBox)sender).Text;
+            }
+        }
+
 
 
         private void pictureBox1_DragEnter(object sender, DragEventArgs e)
@@ -226,6 +353,35 @@ namespace FDesigner
                 canvas.Refresh();
                 pictureBox1.Invalidate();
             }
+        }
+
+
+        private void lineToolStripButton_Click(object sender, EventArgs e)
+        {
+            deselectAll();
+            currentTool = Tool.LINE;
+            textToolStripButton.Checked = false;
+            lineToolStripButton.Checked = true;
+            selectToolStripButton.Checked = false;
+
+        }
+
+        private void selectToolStripButton_Click(object sender, EventArgs e)
+        {
+            deselectAll();
+            currentTool = Tool.SELECT;
+            textToolStripButton.Checked = false;
+            selectToolStripButton.Checked = true;
+            lineToolStripButton.Checked = false;
+        }
+
+        private void textToolStripButton_Click(object sender, EventArgs e)
+        {
+            deselectAll();
+            currentTool = Tool.TEXT;
+            textToolStripButton.Checked = true;
+            selectToolStripButton.Checked = false;
+            lineToolStripButton.Checked = false;
         }
 
 
