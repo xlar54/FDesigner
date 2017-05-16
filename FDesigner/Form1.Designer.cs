@@ -56,11 +56,6 @@
             this.helpToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.btnRightArrow = new System.Windows.Forms.Button();
-            this.btnTriangle = new System.Windows.Forms.Button();
-            this.btnCircle = new System.Windows.Forms.Button();
-            this.btnDiamond = new System.Windows.Forms.Button();
-            this.btnSquare = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
@@ -81,7 +76,6 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.menuStrip1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.toolStrip1.SuspendLayout();
@@ -244,7 +238,7 @@
             // toolsToolStripMenuItem
             // 
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // windowToolStripMenuItem
@@ -278,66 +272,11 @@
             // 
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.panel1.Controls.Add(this.btnRightArrow);
-            this.panel1.Controls.Add(this.btnTriangle);
-            this.panel1.Controls.Add(this.btnCircle);
-            this.panel1.Controls.Add(this.btnDiamond);
-            this.panel1.Controls.Add(this.btnSquare);
+            this.panel1.BackColor = System.Drawing.Color.Black;
             this.panel1.Location = new System.Drawing.Point(0, 57);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(130, 362);
+            this.panel1.Size = new System.Drawing.Size(130, 462);
             this.panel1.TabIndex = 6;
-            // 
-            // btnRightArrow
-            // 
-            this.btnRightArrow.Image = ((System.Drawing.Image)(resources.GetObject("btnRightArrow.Image")));
-            this.btnRightArrow.Location = new System.Drawing.Point(10, 125);
-            this.btnRightArrow.Name = "btnRightArrow";
-            this.btnRightArrow.Size = new System.Drawing.Size(48, 50);
-            this.btnRightArrow.TabIndex = 10;
-            this.btnRightArrow.UseVisualStyleBackColor = true;
-            this.btnRightArrow.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnRightArrow_MouseDown);
-            // 
-            // btnTriangle
-            // 
-            this.btnTriangle.Image = ((System.Drawing.Image)(resources.GetObject("btnTriangle.Image")));
-            this.btnTriangle.Location = new System.Drawing.Point(64, 69);
-            this.btnTriangle.Name = "btnTriangle";
-            this.btnTriangle.Size = new System.Drawing.Size(48, 50);
-            this.btnTriangle.TabIndex = 9;
-            this.btnTriangle.UseVisualStyleBackColor = true;
-            this.btnTriangle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnTriangle_MouseDown);
-            // 
-            // btnCircle
-            // 
-            this.btnCircle.Image = ((System.Drawing.Image)(resources.GetObject("btnCircle.Image")));
-            this.btnCircle.Location = new System.Drawing.Point(10, 69);
-            this.btnCircle.Name = "btnCircle";
-            this.btnCircle.Size = new System.Drawing.Size(48, 50);
-            this.btnCircle.TabIndex = 8;
-            this.btnCircle.UseVisualStyleBackColor = true;
-            this.btnCircle.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnCircle_MouseDown);
-            // 
-            // btnDiamond
-            // 
-            this.btnDiamond.Image = ((System.Drawing.Image)(resources.GetObject("btnDiamond.Image")));
-            this.btnDiamond.Location = new System.Drawing.Point(64, 13);
-            this.btnDiamond.Name = "btnDiamond";
-            this.btnDiamond.Size = new System.Drawing.Size(48, 50);
-            this.btnDiamond.TabIndex = 7;
-            this.btnDiamond.UseVisualStyleBackColor = true;
-            this.btnDiamond.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnDiamond_MouseDown);
-            // 
-            // btnSquare
-            // 
-            this.btnSquare.Image = ((System.Drawing.Image)(resources.GetObject("btnSquare.Image")));
-            this.btnSquare.Location = new System.Drawing.Point(10, 13);
-            this.btnSquare.Name = "btnSquare";
-            this.btnSquare.Size = new System.Drawing.Size(48, 50);
-            this.btnSquare.TabIndex = 6;
-            this.btnSquare.UseVisualStyleBackColor = true;
-            this.btnSquare.MouseDown += new System.Windows.Forms.MouseEventHandler(this.btnSquare_MouseDown);
             // 
             // panel2
             // 
@@ -349,7 +288,7 @@
             this.panel2.Controls.Add(this.pictureBox1);
             this.panel2.Location = new System.Drawing.Point(136, 57);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(639, 342);
+            this.panel2.Size = new System.Drawing.Size(639, 442);
             this.panel2.TabIndex = 8;
             // 
             // pictureBox1
@@ -497,7 +436,7 @@
             // 
             // statusStrip1
             // 
-            this.statusStrip1.Location = new System.Drawing.Point(0, 425);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 525);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(787, 22);
             this.statusStrip1.TabIndex = 11;
@@ -510,7 +449,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Location = new System.Drawing.Point(136, 401);
+            this.tabControl1.Location = new System.Drawing.Point(136, 501);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             this.tabControl1.Size = new System.Drawing.Size(639, 21);
@@ -540,7 +479,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(787, 447);
+            this.ClientSize = new System.Drawing.Size(787, 547);
             this.Controls.Add(this.tabControl1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
@@ -553,9 +492,9 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FDesigner";
             this.Load += new System.EventHandler(this.Form1_Load);
+            this.Resize += new System.EventHandler(this.Form1_Resize);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
-            this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
@@ -573,8 +512,6 @@
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Button btnDiamond;
-        private System.Windows.Forms.Button btnSquare;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
@@ -585,8 +522,6 @@
         private System.Windows.Forms.ToolStripMenuItem windowToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStrip toolStrip1;
-        private System.Windows.Forms.Button btnCircle;
-        private System.Windows.Forms.Button btnTriangle;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem redoToolStripMenuItem;
@@ -618,7 +553,6 @@
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem6;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator7;
-        private System.Windows.Forms.Button btnRightArrow;
         private System.Windows.Forms.ToolStripButton selectToolStripButton;
     }
 }

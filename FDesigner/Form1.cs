@@ -6,10 +6,13 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
+using System.Xml.Serialization;
 using static FDesigner.Shape;
 
 namespace FDesigner
@@ -54,53 +57,9 @@ namespace FDesigner
         private void Form1_Load(object sender, EventArgs e)
         {
             pictureBox1.AllowDrop = true;
-        }
 
-        private void btnSquare_MouseDown(object sender, MouseEventArgs e)
-        {
-            selectToolStripButton_Click(null, null);
-            deselectAll();
-            mouseOffset = new Point(0, 0);
-            tempShape = new Shape(ShapeType.BOX, 0, 0, 100, 100);
-            btnSquare.DoDragDrop(ShapeType.BOX, DragDropEffects.Move);
+            LoadShapes();
         }
-
-        private void btnDiamond_MouseDown(object sender, MouseEventArgs e)
-        {
-            selectToolStripButton_Click(null, null);
-            deselectAll();
-            mouseOffset = new Point(0, 0);
-            tempShape = new Shape(ShapeType.DIAMOND, 0, 0, 100, 100);
-            btnDiamond.DoDragDrop(ShapeType.DIAMOND, DragDropEffects.Move);
-        }
-
-        private void btnCircle_MouseDown(object sender, MouseEventArgs e)
-        {
-            selectToolStripButton_Click(null, null);
-            deselectAll();
-            mouseOffset = new Point(0, 0);
-            tempShape = new Shape(ShapeType.CIRCLE, 0, 0, 100, 100);
-            btnCircle.DoDragDrop(ShapeType.CIRCLE, DragDropEffects.Move);
-        }
-
-        private void btnTriangle_MouseDown(object sender, MouseEventArgs e)
-        {
-            selectToolStripButton_Click(null, null);
-            deselectAll();
-            mouseOffset = new Point(0, 0);
-            tempShape = new Shape(ShapeType.TRIANGLE, 0, 0, 100, 100);
-            btnTriangle.DoDragDrop(ShapeType.TRIANGLE, DragDropEffects.Move);
-        }
-        
-        private void btnRightArrow_MouseDown(object sender, MouseEventArgs e)
-        {
-            selectToolStripButton_Click(null, null);
-            deselectAll();
-            mouseOffset = new Point(0, 0);
-            tempShape = new Shape(ShapeType.RIGHTARROW, 0, 0, 100, 100);
-            btnTriangle.DoDragDrop(ShapeType.RIGHTARROW, DragDropEffects.Move);
-        }
-
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -385,5 +344,142 @@ namespace FDesigner
         }
 
 
+        public void LoadShapes()
+        {
+            XmlSerializer ser = new XmlSerializer(typeof(Xml2CSharp.Groups));
+
+            using (FileStream fileStream = new FileStream("shapes.xml", FileMode.Open))
+            {
+                Xml2CSharp.Groups g = (Xml2CSharp.Groups)ser.Deserialize(fileStream);
+
+                int buttonTop = 0;
+
+                for(int x=0; x < g.Group.Count; x++)
+                {
+                    Xml2CSharp.Group group = g.Group[x];
+
+                    Button b = new Button();
+                    b.Name = "btnGroup" + group.Name.Trim().Replace(" ", "");
+                    b.Text = group.Name;
+                    b.BackColor = Color.White;
+                    b.Width = panel1.Width;
+                    b.Top = buttonTop;
+                    b.Height = 25;
+                    b.FlatStyle = FlatStyle.Flat;
+                    b.FlatAppearance.BorderColor = Color.Black;
+                    b.FlatAppearance.BorderSize = 1;
+                    b.Click += GroupButton_Click;
+                    buttonTop += b.Height + 5;
+                    panel1.Controls.Add(b);
+                }
+            }
+
+        }
+
+        private void GroupButton_Click(object sender, EventArgs e)
+        {
+            int offset = panel1.Height;
+
+            foreach (Control c in panel1.Controls)
+            {
+                if (c is Panel)
+                {
+                    c.Controls.Clear();
+                    c.Dispose();
+                }
+                    
+            }
+
+            foreach (Control c in panel1.Controls)
+            {
+                if (c is Button)
+                {
+                    if (c.Name != ((Button)sender).Name)
+                    {
+                        // Move unselected group buttons to bottom
+                        c.Top = offset - c.Height;
+                        offset = c.Top;
+                        c.Tag = "";
+                    }
+                    else
+                    {
+                        // This is the selected group button
+                        c.Top = 0;
+                        c.Tag = "selected";
+
+                        // Inner panel to contain the shape buttons
+                        Panel p = new Panel();
+                        p.Width = panel1.Width;
+                        p.Height = panel1.Height;
+                        p.Top = 40;
+                        
+                        XmlSerializer ser = new XmlSerializer(typeof(Xml2CSharp.Groups));
+
+                        // build the shape buttons and add them to the new inner panel
+                        using (FileStream fileStream = new FileStream("shapes.xml", FileMode.Open))
+                        {
+                            Xml2CSharp.Groups g = (Xml2CSharp.Groups)ser.Deserialize(fileStream);
+
+                            int buttonTop = 0;
+
+                            for (int x = 0; x < g.Group.Count; x++)
+                            {
+                                if (g.Group[x].Name == c.Text)
+                                {
+                                    Xml2CSharp.Group group = g.Group[x];
+
+                                    for (int z=0; z < group.Shape.Count; z++)
+                                    {
+                                        Xml2CSharp.Shape shape = group.Shape[z];
+
+                                        Button b = new Button();
+                                        b.Name = "btnShape" + shape.Name.Trim().Replace(" ", "");
+                                        b.Text = shape.Name;
+                                        b.BackColor = Color.Beige;
+                                        b.Width = p.Width;
+                                        b.Top = buttonTop;
+                                        b.Height = 35;
+                                        b.Tag = shape;
+                                        b.MouseDown += ShapeButton_MouseDown;
+                                        buttonTop += b.Height + 5;
+                                        p.Controls.Add(b);
+                                    }
+
+                                    panel1.Controls.Add(p);
+                                    
+                                }
+                            }
+                        }
+
+                    }
+                    
+                }
+            }
+        }
+
+        private void ShapeButton_MouseDown(object sender, MouseEventArgs e)
+        {
+            Button b = ((Button)sender);
+            Xml2CSharp.Shape shape = (Xml2CSharp.Shape)b.Tag;
+            selectToolStripButton_Click(null, null);
+            deselectAll();
+            mouseOffset = new Point(0, 0);
+            tempShape = new Shape(shape, 0, 0, 100, 100);
+            ((Button)sender).DoDragDrop(ShapeType.BOX, DragDropEffects.Move);
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            foreach (Control c in panel1.Controls)
+            {
+                if (c is Button)
+                {
+                    if ((string)c.Tag == "selected")
+                    {
+                        GroupButton_Click(c, null);
+                    }
+                }
+            }
+        }
     }
 }

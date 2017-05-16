@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<groups>
+  <group name='Basic Shapes'>
+    <shape name='Rectangle'>
+      <filledpolygon  x='0' y='0' fillcolor='Whitesmoke'>
+        <points>
+          <point x='0' y='0' />
+          <point x='w' y='0' />
+          <point x='w' y='h' />
+          <point x='0' y='h' />
+        </points>
+      </filledpolygon>
+    </shape>
+    <shape name='Diamond'>
+      <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
+        <points>
+          <point x='w/2' y='0'   />
+          <point x='w'   y='h/2' />
+          <point x='w/2' y='h'   />
+          <point x='0'   y='h/2' />
+        </points>
+      </filledpolygon>
+    </shape>
+    <shape name='Ellipse'>
+      <ellipse x='0' y='0' fillcolor='Whitesmoke' />
+    </shape>
+    <shape name='Triangle'>
+      <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
+        <points>
+          <point x='w/2' y='0' />
+          <point x='w'   y='h' />
+          <point x='0'   y='h' />
+        </points>
+      </filledpolygon>
+    </shape>
+  </group>
+  <group name='Arrows'>
+    <shape name='Right Arrow'>
+        <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
+          <points>
+            <point x='0'    y='h*.4' />
+            <point x='w*.6' y='h*.4' />
+            <point x='w*.6' y='h*.2' />
+            <point x='w'    y='h*.5' />
+            <point x='w*.6' y='h*.8' />
+            <point x='w*.6' y='h*.6' />
+            <point x='0'    y='h*.6' />
+          </points>
+        </filledpolygon>
+      </shape>    
+  </group>
+  <group name='Database'>
+    <shape name='Server'>
+      <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
+        <points>
+          <point x='0'    y='h*.4' />
+          <point x='w*.6' y='h*.4' />
+          <point x='w*.6' y='h*.2' />
+          <point x='w'    y='h*.5' />
+          <point x='w*.6' y='h*.8' />
+          <point x='w*.6' y='h*.6' />
+          <point x='0'    y='h*.6' />
+        </points>
+      </filledpolygon>
+    </shape>
+  </group>
+</groups>
+
+

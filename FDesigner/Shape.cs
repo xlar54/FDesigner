@@ -117,13 +117,13 @@ namespace FDesigner
                     case ShapeType.RIGHTARROW:
                         {
                             Point[] points = new Point[7];
-                            points[0] = new Point(0, h/2 - 10);
-                            points[1] = new Point(w - 40, h / 2 - 10);
-                            points[2] = new Point(w - 40, h/2 - 30);
-                            points[3] = new Point(w, h/2);
-                            points[4] = new Point(w - 40, h/2 + 30);
-                            points[5] = new Point(w - 40, h / 2 + 10);
-                            points[6] = new Point(0, h / 2 + 10);
+                            points[0] = new Point(0, Convert.ToInt32(h*.4));
+                            points[1] = new Point(Convert.ToInt32(w *.6), Convert.ToInt32(h * .4));
+                            points[2] = new Point(Convert.ToInt32(w * .6), Convert.ToInt32(h * .2));
+                            points[3] = new Point(w, Convert.ToInt32(h * .5));
+                            points[4] = new Point(Convert.ToInt32(w * .6), Convert.ToInt32(h * .8));
+                            points[5] = new Point(Convert.ToInt32(w * .6), Convert.ToInt32(h * .6));
+                            points[6] = new Point(0, Convert.ToInt32(h * .6));
 
                             g.FillPolygon(fillBrush, points);
                             g.DrawPolygon(pen, points);
@@ -131,6 +131,52 @@ namespace FDesigner
                         }
 
                 }
+            }
+        }
+
+        public Shape(Xml2CSharp.Shape shape, int x, int y, int width, int height)
+        {
+            SolidBrush whiteBrush = new SolidBrush(Color.White);
+            SolidBrush fillBrush = new SolidBrush(Color.WhiteSmoke);
+            Pen pen = new Pen(Color.Black, 1);
+            SimpleExpressionEvaluator.ExpressionIterator parser = new SimpleExpressionEvaluator.ExpressionIterator();
+
+            x1 = x;
+            y1 = y;
+            bitmap = new Bitmap(width, height);
+            buffer = (Bitmap)bitmap.Clone();
+
+
+            using (Graphics g = Graphics.FromImage(this.bitmap))
+            {
+                int h = this.bitmap.Height - 1;
+                int w = this.bitmap.Width - 1;
+
+                if (shape.Filledpolygon != null)
+                {
+                    Point[] points = new Point[shape.Filledpolygon.Points.Point.Count];
+                    for (int zz=0; zz < shape.Filledpolygon.Points.Point.Count; zz++)
+                    {
+                        Xml2CSharp.Point p = shape.Filledpolygon.Points.Point[zz];
+
+                        p.X = p.X.Replace("w", w.ToString()).Replace("h", h.ToString());
+                        p.Y = p.Y.Replace("w", w.ToString()).Replace("h", h.ToString());
+
+                        points[zz].X = Convert.ToInt32(parser.EvaluateStringExpression(p.X));
+                        points[zz].Y = Convert.ToInt32(parser.EvaluateStringExpression(p.Y));
+                    }
+                    g.FillPolygon(fillBrush, points);
+                    g.DrawPolygon(pen, points);
+                }
+
+                if (shape.Ellipse != null)
+                {
+                    g.FillEllipse(fillBrush, 0, 0, w, h);
+                    g.DrawEllipse(pen, 0, 0, w, h);
+                }
+                
+
+                
             }
         }
 
