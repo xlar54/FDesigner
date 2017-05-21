@@ -22,7 +22,7 @@
       </filledpolygon>
     </shape>
     <shape name='Ellipse'>
-      <ellipse x='0' y='0' fillcolor='Whitesmoke' />
+      <ellipse x='0' y='0' width='w' height='h' fillcolor='Whitesmoke' />
     </shape>
     <shape name='Triangle'>
       <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
@@ -51,15 +51,13 @@
   </group>
   <group name='Database'>
     <shape name='Server'>
+      <ellipse x='0' y='0' width='w' height='h*.3' fillcolor='Whitesmoke' />
       <filledpolygon x='0' y='0' fillcolor='Whitesmoke'>
         <points>
-          <point x='0'    y='h*.4' />
-          <point x='w*.6' y='h*.4' />
-          <point x='w*.6' y='h*.2' />
-          <point x='w'    y='h*.5' />
-          <point x='w*.6' y='h*.8' />
-          <point x='w*.6' y='h*.6' />
-          <point x='0'    y='h*.6' />
+          <point x='0' y='0' />
+          <point x='w' y='0' />
+          <point x='w' y='h' />
+          <point x='0' y='h' />
         </points>
       </filledpolygon>
     </shape>

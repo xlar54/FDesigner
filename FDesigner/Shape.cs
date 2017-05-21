@@ -80,8 +80,10 @@ namespace FDesigner
 
                 if (ShapeDef.Ellipse != null)
                 {
-                    g.FillEllipse(fillBrush, 0, 0, w, h);
-                    g.DrawEllipse(pen, 0, 0, w, h);
+                    int tw = Convert.ToInt32(parser.EvaluateStringExpression(ShapeDef.Ellipse.Width.Replace("w", w.ToString()).Replace("h", h.ToString())));
+                    int th = Convert.ToInt32(parser.EvaluateStringExpression(ShapeDef.Ellipse.Height.Replace("w", w.ToString()).Replace("h", h.ToString())));
+                    g.FillEllipse(fillBrush, 0, 0, tw, th);
+                    g.DrawEllipse(pen, 0, 0, tw, th);
                 }
                 
             }

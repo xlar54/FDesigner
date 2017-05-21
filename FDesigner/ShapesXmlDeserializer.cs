@@ -51,6 +51,10 @@ namespace FDesigner
         public string X { get; set; }
         [XmlAttribute(AttributeName = "y")]
         public string Y { get; set; }
+        [XmlAttribute(AttributeName = "width")]
+        public string Width { get; set; }
+        [XmlAttribute(AttributeName = "height")]
+        public string Height { get; set; }
         [XmlAttribute(AttributeName = "fillcolor")]
         public string Fillcolor { get; set; }
     }

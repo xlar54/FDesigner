@@ -27,16 +27,16 @@ namespace FDesigner
             TEXT
         }
 
-        Canvas canvas = new Canvas(1024, 768, 10);
+        private Canvas canvas = new Canvas(1024, 768, 10);
 
-        Shape tempShape = new Shape();
-        Line tempLine = new Line();
-        TextBlock tempTextBlock = new TextBlock();
+        private Shape tempShape = new Shape();
+        private Line tempLine = new Line();
+        private TextBlock tempTextBlock = new TextBlock();
 
-        public Point mouseOffset;
-        public Tool currentTool = Tool.SELECT;
+        private Point mouseOffset;
+        private Tool currentTool = Tool.SELECT;
 
-        ContextMenuStrip popUpMenu = new ContextMenuStrip();
+        private ContextMenuStrip popUpMenu = new ContextMenuStrip();
 
         public Form1()
         {
@@ -51,6 +51,7 @@ namespace FDesigner
             popUpMenu.Items.Add("Delete");
             popUpMenu.ItemClicked += popUpMenu_ItemClicked;
             pictureBox1.ContextMenuStrip = popUpMenu;
+
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -60,14 +61,45 @@ namespace FDesigner
             LoadShapes();
         }
 
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        private void toolStripMenuClick(object sender, EventArgs e)
         {
-            pictureBox1.Image = new Bitmap(640, 480);
+            switch (((ToolStripButton)sender).Tag.ToString())
+            {
+                case "New":
+                    canvas.Clear();
+                    break;
+                case "Save":
+                case "Undo":
+                case "Redo":
+                case "Select":
+                    deselectAll();
+                    currentTool = Tool.SELECT;
+                    textToolStripButton.Checked = false;
+                    selectToolStripButton.Checked = true;
+                    lineToolStripButton.Checked = false;
+                    break;
+                case "Line":
+                    deselectAll();
+                    currentTool = Tool.LINE;
+                    textToolStripButton.Checked = false;
+                    lineToolStripButton.Checked = true;
+                    selectToolStripButton.Checked = false;
+                    break;
+                case "Connector":
+                case "Text":
+                    deselectAll();
+                    currentTool = Tool.TEXT;
+                    textToolStripButton.Checked = true;
+                    selectToolStripButton.Checked = false;
+                    lineToolStripButton.Checked = false;
+                    break;
+
+            }
         }
 
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            
+            Application.Exit();
         }
 
         private void printToolStripMenuItem2_Click(object sender, EventArgs e)
@@ -80,11 +112,6 @@ namespace FDesigner
         private void printDocument1_PrintPage(object sender, System.Drawing.Printing.PrintPageEventArgs e)
         {
             e.Graphics.DrawImage(pictureBox1.Image, 0, 0);
-        }
-
-        private void newToolStripMenuItem2_Click(object sender, EventArgs e)
-        {
-            canvas.Clear();
         }
 
 
@@ -158,15 +185,12 @@ namespace FDesigner
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    canvas.Refresh();
-
-                    pictureBox1.Image = canvas.bitmap;
+                    canvas.SwapBuffer();
 
                     tempLine.x2 = e.X;
                     tempLine.y2 = e.Y;
 
                     canvas.Draw(tempLine);
-
                     pictureBox1.Image = canvas.bitmap;
                 }
 
@@ -176,9 +200,7 @@ namespace FDesigner
             {
                 if (e.Button == MouseButtons.Left)
                 {
-                    canvas.Refresh();
-
-                    pictureBox1.Image = canvas.bitmap;
+                    canvas.SwapBuffer();
 
                     tempTextBlock.x2 = e.X;
                     tempTextBlock.y2 = e.Y;
@@ -216,8 +238,9 @@ namespace FDesigner
                 textBox.KeyPress += TextBox_KeyPress;
                 textBox.Font = new Font(FontFamily.GenericMonospace, 10);
                 textBox.Multiline = true;
-                textBox.Width = tempTextBlock.x2 - tempTextBlock.x1;
-                textBox.Height = tempTextBlock.y2 - tempTextBlock.y1;
+                textBox.BorderStyle = BorderStyle.FixedSingle;
+                textBox.Width = tempTextBlock.x2 - tempTextBlock.x1+1;
+                textBox.Height = tempTextBlock.y2 - tempTextBlock.y1+1;
                 
                 pictureBox1.Controls.Add(textBox);
                 textBox.Focus();
@@ -243,7 +266,6 @@ namespace FDesigner
                 tempTextBlock.Text = ((TextBox)sender).Text;
             }
         }
-
 
 
         private void pictureBox1_DragEnter(object sender, DragEventArgs e)
@@ -309,35 +331,6 @@ namespace FDesigner
                 canvas.Refresh();
                 pictureBox1.Invalidate();
             }
-        }
-
-
-        private void lineToolStripButton_Click(object sender, EventArgs e)
-        {
-            deselectAll();
-            currentTool = Tool.LINE;
-            textToolStripButton.Checked = false;
-            lineToolStripButton.Checked = true;
-            selectToolStripButton.Checked = false;
-
-        }
-
-        private void selectToolStripButton_Click(object sender, EventArgs e)
-        {
-            deselectAll();
-            currentTool = Tool.SELECT;
-            textToolStripButton.Checked = false;
-            selectToolStripButton.Checked = true;
-            lineToolStripButton.Checked = false;
-        }
-
-        private void textToolStripButton_Click(object sender, EventArgs e)
-        {
-            deselectAll();
-            currentTool = Tool.TEXT;
-            textToolStripButton.Checked = true;
-            selectToolStripButton.Checked = false;
-            lineToolStripButton.Checked = false;
         }
 
 
@@ -462,8 +455,14 @@ namespace FDesigner
 
             Button b = ((Button)sender);
             ShapeDef shapeDefinition = (ShapeDef)b.Tag;
-            selectToolStripButton_Click(null, null);
+
+            // this code is duplicated! (same as clicking Select toolstrip item)
             deselectAll();
+            currentTool = Tool.SELECT;
+            textToolStripButton.Checked = false;
+            selectToolStripButton.Checked = true;
+            lineToolStripButton.Checked = false;
+
             mouseOffset = new Point(0, 0);
             tempShape = new Shape(shapeDefinition, 0, 0, 100, 100);
             ((Button)sender).DoDragDrop(tempShape, DragDropEffects.Move);
@@ -482,5 +481,7 @@ namespace FDesigner
                 }
             }
         }
+
+
     }
 }

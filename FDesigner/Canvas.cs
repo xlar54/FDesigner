@@ -228,10 +228,10 @@ namespace FDesigner
         {
             DrawGrid();
 
-            foreach (Line l in Lines)
-                Draw(l);
             foreach (Shape s in Shapes)
                 Draw(s);
+            foreach (Line l in Lines)
+                Draw(l);
             foreach (TextBlock t in TextBlocks)
                 Draw(t, t.Text);
 
@@ -457,5 +457,9 @@ namespace FDesigner
             return p;
         }
 
+        public void SwapBuffer()
+        {
+            canvas = (Bitmap)buffer.Clone();
+        }
     }
 }
