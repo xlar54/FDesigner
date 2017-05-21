@@ -32,7 +32,6 @@ namespace FDesigner
         Shape tempShape = new Shape();
         Line tempLine = new Line();
         TextBlock tempTextBlock = new TextBlock();
-        bool processTextBlockKeys = false;
 
         public Point mouseOffset;
         public Tool currentTool = Tool.SELECT;
@@ -211,8 +210,6 @@ namespace FDesigner
 
             if (currentTool == Tool.TEXT)
             {
-                processTextBlockKeys = true;
-
                 TextBox textBox = new TextBox();
                 textBox.Name = "tempTextBox";
                 textBox.Location = new Point(tempTextBlock.x1, tempTextBlock.y1);
@@ -346,17 +343,17 @@ namespace FDesigner
 
         public void LoadShapes()
         {
-            XmlSerializer ser = new XmlSerializer(typeof(Xml2CSharp.Groups));
+            XmlSerializer ser = new XmlSerializer(typeof(GroupsDef));
 
             using (FileStream fileStream = new FileStream("shapes.xml", FileMode.Open))
             {
-                Xml2CSharp.Groups g = (Xml2CSharp.Groups)ser.Deserialize(fileStream);
+                GroupsDef g = (GroupsDef)ser.Deserialize(fileStream);
 
                 int buttonTop = 0;
 
                 for(int x=0; x < g.Group.Count; x++)
                 {
-                    Xml2CSharp.Group group = g.Group[x];
+                    GroupDef group = g.Group[x];
 
                     Button b = new Button();
                     b.Name = "btnGroup" + group.Name.Trim().Replace(" ", "");
@@ -413,12 +410,12 @@ namespace FDesigner
                         p.Height = panel1.Height;
                         p.Top = 40;
                         
-                        XmlSerializer ser = new XmlSerializer(typeof(Xml2CSharp.Groups));
+                        XmlSerializer ser = new XmlSerializer(typeof(GroupsDef));
 
                         // build the shape buttons and add them to the new inner panel
                         using (FileStream fileStream = new FileStream("shapes.xml", FileMode.Open))
                         {
-                            Xml2CSharp.Groups g = (Xml2CSharp.Groups)ser.Deserialize(fileStream);
+                            GroupsDef g = (GroupsDef)ser.Deserialize(fileStream);
 
                             int buttonTop = 0;
 
@@ -426,20 +423,20 @@ namespace FDesigner
                             {
                                 if (g.Group[x].Name == c.Text)
                                 {
-                                    Xml2CSharp.Group group = g.Group[x];
+                                    GroupDef group = g.Group[x];
 
                                     for (int z=0; z < group.Shape.Count; z++)
                                     {
-                                        Xml2CSharp.Shape shape = group.Shape[z];
+                                        ShapeDef shapeDefinition = group.Shape[z];
 
                                         Button b = new Button();
-                                        b.Name = "btnShape" + shape.Name.Trim().Replace(" ", "");
-                                        b.Text = shape.Name;
+                                        b.Name = "btnShape" + shapeDefinition.Name.Trim().Replace(" ", "");
+                                        b.Text = shapeDefinition.Name;
                                         b.BackColor = Color.Beige;
                                         b.Width = p.Width;
                                         b.Top = buttonTop;
                                         b.Height = 35;
-                                        b.Tag = shape;
+                                        b.Tag = shapeDefinition;
                                         b.MouseDown += ShapeButton_MouseDown;
                                         buttonTop += b.Height + 5;
                                         p.Controls.Add(b);
@@ -459,13 +456,17 @@ namespace FDesigner
 
         private void ShapeButton_MouseDown(object sender, MouseEventArgs e)
         {
+            // Each button holds a shape definition from the xml file
+            // here, we create an actual shape object based on the definition
+            // then initiate a drag/drop operation
+
             Button b = ((Button)sender);
-            Xml2CSharp.Shape shape = (Xml2CSharp.Shape)b.Tag;
+            ShapeDef shapeDefinition = (ShapeDef)b.Tag;
             selectToolStripButton_Click(null, null);
             deselectAll();
             mouseOffset = new Point(0, 0);
-            tempShape = new Shape(shape, 0, 0, 100, 100);
-            ((Button)sender).DoDragDrop(ShapeType.BOX, DragDropEffects.Move);
+            tempShape = new Shape(shapeDefinition, 0, 0, 100, 100);
+            ((Button)sender).DoDragDrop(tempShape, DragDropEffects.Move);
         }
 
         private void Form1_Resize(object sender, EventArgs e)

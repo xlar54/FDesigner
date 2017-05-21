@@ -311,49 +311,49 @@ namespace FDesigner
 
             if (grabArea == GrabArea.HANDLE_BTMCENTER)
             {
-                s = new Shape(s.Type, s.x1, s.y1, s.bitmap.Width, p.Y - s.y1);
+                s = new Shape(s.ShapeDef, s.x1, s.y1, s.bitmap.Width, p.Y - s.y1);
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_BTMLEFT)
             {
-                s = new Shape(s.Type, p.X, s.y1, s.bitmap.Width + (s.x1 - p.X), p.Y - s.y1);
+                s = new Shape(s.ShapeDef, p.X, s.y1, s.bitmap.Width + (s.x1 - p.X), p.Y - s.y1);
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_BTMRIGHT)
             {
-                s = new Shape(s.Type, s.x1, s.y1, p.X - s.x1, p.Y - s.y1);
+                s = new Shape(s.ShapeDef, s.x1, s.y1, p.X - s.x1, p.Y - s.y1);
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_MIDLEFT)
             {
-                s = new Shape(s.Type, p.X, s.y1, s.bitmap.Width + (s.x1 - p.X), s.bitmap.Height);
+                s = new Shape(s.ShapeDef, p.X, s.y1, s.bitmap.Width + (s.x1 - p.X), s.bitmap.Height);
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_MIDRIGHT)
             {
-                s = new Shape(s.Type, s.x1, s.y1, p.X - s.x1, s.bitmap.Height);
+                s = new Shape(s.ShapeDef, s.x1, s.y1, p.X - s.x1, s.bitmap.Height);
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_TOPLEFT)
             {
-                s = new Shape(s.Type, p.X, p.Y, s.bitmap.Width + (s.x1 - p.X), s.bitmap.Height + (s.y1 - p.Y));
+                s = new Shape(s.ShapeDef, p.X, p.Y, s.bitmap.Width + (s.x1 - p.X), s.bitmap.Height + (s.y1 - p.Y));
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_TOPRIGHT)
             {
-                s = new Shape(s.Type, s.x1, p.Y, p.X - s.x1, s.bitmap.Height + (s.y1 - p.Y));
+                s = new Shape(s.ShapeDef, s.x1, p.Y, p.X - s.x1, s.bitmap.Height + (s.y1 - p.Y));
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
             if (grabArea == GrabArea.HANDLE_TOPCENTER)
             {
-                s = new Shape(s.Type, s.x1, p.Y, s.bitmap.Width, s.bitmap.Height + (s.y1 - p.Y));
+                s = new Shape(s.ShapeDef, s.x1, p.Y, s.bitmap.Width, s.bitmap.Height + (s.y1 - p.Y));
                 s.buffer = GetBitmapRegion(s.rect);
             }
 
@@ -365,6 +365,7 @@ namespace FDesigner
 
         }
 
+ 
         public Bitmap GetBitmapRegion(Rectangle rect)
         {
             Bitmap tempBmp = new Bitmap(rect.Width, rect.Height);

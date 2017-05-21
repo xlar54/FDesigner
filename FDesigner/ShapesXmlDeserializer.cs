@@ -1,16 +1,11 @@
-﻿/* 
- Licensed under the Apache License, Version 2.0
-
- http://www.apache.org/licenses/LICENSE-2.0
- */
-using System;
+﻿using System;
 using System.Xml.Serialization;
 using System.Collections.Generic;
 
-namespace Xml2CSharp
+namespace FDesigner
 {
     [XmlRoot(ElementName = "point")]
-    public class Point
+    public class PointDef
     {
         [XmlAttribute(AttributeName = "x")]
         public string X { get; set; }
@@ -19,17 +14,17 @@ namespace Xml2CSharp
     }
 
     [XmlRoot(ElementName = "points")]
-    public class Points
+    public class PointsDef
     {
         [XmlElement(ElementName = "point")]
-        public List<Point> Point { get; set; }
+        public List<PointDef> Point { get; set; }
     }
 
     [XmlRoot(ElementName = "filledpolygon")]
-    public class Filledpolygon
+    public class FilledPolygonDef
     {
         [XmlElement(ElementName = "points")]
-        public Points Points { get; set; }
+        public PointsDef Points { get; set; }
         [XmlAttribute(AttributeName = "x")]
         public string X { get; set; }
         [XmlAttribute(AttributeName = "y")]
@@ -39,18 +34,18 @@ namespace Xml2CSharp
     }
 
     [XmlRoot(ElementName = "shape")]
-    public class Shape
+    public class ShapeDef
     {
         [XmlElement(ElementName = "filledpolygon")]
-        public Filledpolygon Filledpolygon { get; set; }
+        public FilledPolygonDef Filledpolygon { get; set; }
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
         [XmlElement(ElementName = "ellipse")]
-        public Ellipse Ellipse { get; set; }
+        public EllipseDef Ellipse { get; set; }
     }
 
     [XmlRoot(ElementName = "ellipse")]
-    public class Ellipse
+    public class EllipseDef
     {
         [XmlAttribute(AttributeName = "x")]
         public string X { get; set; }
@@ -61,19 +56,19 @@ namespace Xml2CSharp
     }
 
     [XmlRoot(ElementName = "group")]
-    public class Group
+    public class GroupDef
     {
         [XmlElement(ElementName = "shape")]
-        public List<Shape> Shape { get; set; }
+        public List<ShapeDef> Shape { get; set; }
         [XmlAttribute(AttributeName = "name")]
         public string Name { get; set; }
     }
 
     [XmlRoot(ElementName = "groups")]
-    public class Groups
+    public class GroupsDef
     {
         [XmlElement(ElementName = "group")]
-        public List<Group> Group { get; set; }
+        public List<GroupDef> Group { get; set; }
     }
 
 }
